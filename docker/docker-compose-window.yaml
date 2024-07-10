@@ -1,0 +1,38 @@
+version: "3.1"
+services:
+  wordpress:
+    build:
+      context: ./
+      dockerfile: Window.Dockerfile
+    image: azure-wordpress-nginx:6.5.5-php8.1-fpm-alpine
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - 80:8080
+    env_file:
+      - .env
+    volumes:
+      - "./config/nginx.conf:/etc/nginx/nginx.conf"
+      - "./config/php.ini:/etc/php81/conf.d/zzz_custom.ini"
+      - "./index.php:/home/site/wwwroot/index.php"
+      - "../onlineshowroom-backend:/home/site/wwwroot/onlineshowroom-backend"
+      - "../wp-content/uploads:/home/site/wwwroot/onlineshowroom-backend/wp-content/uploads"
+
+  phpmyadmin:
+    image: phpmyadmin
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - 8081:80
+    env_file:
+      - .env
+  db:
+    image: mysql:8.0
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./db:/var/lib/mysql
+      - "./wordpress.sql:/docker-entrypoint-initdb.d/wordpress.sql"
