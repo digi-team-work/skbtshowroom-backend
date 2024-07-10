@@ -1,0 +1,17 @@
+*~
+*.log
+docker/.env
+docker/db
+onlineshowroom-backend/wp-content/upgrade/
+onlineshowroom-backend/wp-content/cache/
+onlineshowroom-backend/wp-content/backups/
+onlineshowroom-backend/wp-content/backup-db/
+onlineshowroom-backend/wp-content/blogs.dir/
+
+onlineshowroom-backend/wp-content/advanced-cache.php
+onlineshowroom-backend/wp-content/object-cache.php
+onlineshowroom-backend/wp-content/wp-cache-config.php
+onlineshowroom-backend/sitemap.xml
+onlineshowroom-backend/sitemap.xml.gz
+
+onlineshowroom-backend/wp-config.php
