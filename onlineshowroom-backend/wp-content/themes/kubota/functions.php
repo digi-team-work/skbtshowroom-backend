@@ -214,7 +214,6 @@ add_action( 'init', 'twentytwentyfour_pattern_categories' );
 function fetch_product_ids_from_api() {
     $response = wp_remote_get('https://kubota.campaignserv.com/api/skl/product/showroom-list');
     if (is_wp_error($response)) {
-		var_dump($response);
         return [];
     }
 
@@ -250,50 +249,6 @@ add_filter('acf/load_field/name=product_id', 'populate_acf_product_id_field');
 
 
 
-// add options for selector video in home-managements
-function fetch_video_fields() {
-	try {
-		$response = wp_remote_get(WP_BASE_URL_PROD.'wp-json/restapi/v2/videos');
-		if (is_wp_error($response)) {
-			return [];
-		} 
-	
-		$body = wp_remote_retrieve_body($response);
-		$data = json_decode($body, true);
-
-		if (!is_array($data)) {
-			return [];
-		} 
-	
-		$options = [];
-		foreach ($data as $video) {
-			if (isset($video)) {
-				$file_name = basename($video['video']);
-				$options[$file_name] = $file_name;
-			} 
-		}
-	
-		return $options;
-	} catch (Exception $ex) {
-		return $ex;
-	}
-
-}
-
-// add options in video selector field
-function populate_acf_selector_field($field) {
-	if (is_admin() && get_post_type() === 'page') {
-		$selector = fetch_video_fields();
-		if (isset($selector)) {
-			$field['choices'] = $selector;
-		} 
-	}
-	return $field;
-}
-add_filter('acf/load_field/name=video_id', 'populate_acf_selector_field');
-
-
-
 // text field successfully
 // update section number of sort selector section
 function update_section_number($number, $post_id) {
@@ -322,6 +277,50 @@ function add_acf_repeater_product($post_id, $post, $update) {
 }
 add_action('wp_insert_post', 'add_acf_repeater_product', 10, 3);
 
+
+
+// add options for selector video in home-managements
+// function fetch_video_fields() {
+// 	try {
+// 		$response = wp_remote_get(WP_BASE_URL_PROD.'wp-json/restapi/v2/videos');
+// 		if (is_wp_error($response)) {
+// 			return [];
+// 		} 
+	
+// 		$body = wp_remote_retrieve_body($response);
+// 		$data = json_decode($body, true);
+
+// 		if (!is_array($data)) {
+// 			return [];
+// 		} 
+	
+// 		$options = [];
+// 		foreach ($data as $video) {
+// 			if (isset($video)) {
+// 				$file_name = basename($video['video']);
+// 				$options[$file_name] = $file_name;
+// 			} 
+// 		}
+	
+// 		return $options;
+// 	} catch (Exception $ex) {
+// 		return $ex;
+// 	}
+
+// }
+
+// add options in video selector field
+// function populate_acf_selector_field($field) {
+// 	if (is_admin() && get_post_type() === 'page') {
+// 		$selector = fetch_video_fields();
+// 		if (isset($selector)) {
+// 			$field['choices'] = $selector;
+// 		} 
+// 	}
+// 	return $field;
+// }
+// add_filter('acf/load_field/name=video_id', 'populate_acf_selector_field');
+
 // function readonly_selector_section($field) {
 // 	if ( is_admin() && get_post_type() === 'products') {
 		
@@ -343,92 +342,5 @@ add_action('wp_insert_post', 'add_acf_repeater_product', 10, 3);
 
 
 
-// add_action('plugins_loaded', 'add_acf_repeator_product');
 
-// function add_section($number, $post_id) {
-//     $result = add_row(
-//         'field_66923437ed0e9', // This should be the field key for 'sort_section'
-//         array(
-//             'field_669234c8ed0ea' => 'Section ' . $number // This should be the field key for 'section_number'
-//         ),
-//         $post_id
-//     );
-
-//     // Log the result of add_row for debugging
-//     error_log("Adding section $number to post $post_id: " . ($result ? 'Success' : 'Failed'));
-// }
-
-// function add_acf_repeator_product() {
-//     if (is_admin() && get_post_type() === 'products') {
-//         $products = fetch_products_post_id();
-//         error_log('Products fetched: ' . print_r($products, true));
-
-//         foreach ($products as $product) {
-//             $post_id = $product['id'];
-//             error_log("Processing product ID: $post_id");
-
-//             if (!have_rows('field_66923437ed0e9', $post_id)) {
-//                 error_log("No existing rows found for product ID: $post_id. Adding new sections.");
-//                 add_section(1, $post_id);
-//                 add_section(2, $post_id);
-//                 add_section(3, $post_id);
-//                 add_section(4, $post_id);
-//                 add_section(5, $post_id);
-//                 add_section(6, $post_id);
-//             } else {
-//                 error_log("Existing rows found for product ID: $post_id. Skipping section addition.");
-//             }
-//         }
-//     } else {
-//         error_log('Conditions not met: Either not admin or post type is not products.');
-//     }
-// }
-
-// // Hook the function to an appropriate action
-// add_action('acf/init', 'add_acf_repeator_product', 10);
-// add_action('plugins_loaded', 'add_acf_repeator_product');
-
-
-
-// function my_acf_update_value( $value, $post_id, $field, $original ) {
-//     $value = str_replace( 'Old Company Name', 'New Company Name',  $value );
-//     return $value;
-// }
-
-// // Apply to all fields.
-// add_filter('acf/update_value/name=section_number', 'my_acf_update_value', 10, 4);
-
-
-
-
-	// add_row(
-	// 	'field_66923437ed0e9',
-	// 	array(
-	// 		'section_number' => 'Section '.$number
-	// 	),
-	// 	$post_id
-	// );
-
-	// update_field(
-	// 	'sort_section',
-	// 	array(
-	// 		'section_number' => 'Section '.$number
-	// 	),
-	// 	$post_id
-	// );
-
-	// function populate_acf_radio_field($field) {
-// 	if (is_admin() && get_post_type() === 'page') {
-// 		$selector = fetch_video_fields();
-// 		if (isset($selector)) {
-// 			$field[0]['section_number']['choices'] = 'section-1';
-// 			$field[1]['section_number']['choices'] = 'section-1';
-// 			$field[2]['section_number']['choices'] = 'section-1';
-// 			$field[3]['section_number']['choices'] = 'section-1';
-// 			$field[4]['section_number']['choices'] = 'section-1';
-// 		} 
-// 	}
-// 	return $field;
-// }
-// add_filter('acf/load_field/name=sort_selector_section', 'populate_acf_radio_field');
 

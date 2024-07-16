@@ -64,37 +64,43 @@ function custom_section_items($custom_fields, $sort_section) {
   $section[] = array(
     'widget' => 'section-banner',
     'banner_type' => $banner['banner_type'], 
-    'image_mobile' => $banner['banner_type'] === 'image' ? $banner['banner_image_mobile'] : $banner['banner_link_mobile'],
     'image_desktop' => $banner['banner_type'] === 'image' ? $banner['banner_image_desktop'] : $banner['banner_link_desktop'],
+    'image_mobile' => $banner['banner_type'] === 'image' ? $banner['banner_image_mobile'] : "",
   );
 
-  $section1 = $custom_fields['section-1'];
-  $pre_section['Section1'] = array(
-    'widget' => 'section-1',
-    'background_type' => $section1['background_type'],
-    'background' => $section1['background_type'] === 'color' ? $section1['background'] : $section1['background_image'],
-    'title_type' => $section1['title_type'],
-    'title' => $section1['title_type'] === 'text' ? $section1['title'] : $section1['title_image'],
-    'lists' => $section1['lists_section1'],
-  );
+  if ( $custom_fields['status_section1']) {
+    $section1 = $custom_fields['section-1'];
+    $pre_section['Section1'] = array(
+      'widget' => 'section-1',
+      'background_type' => $section1['background_type'],
+      'background' => $section1['background_type'] === 'color' ? $section1['background'] : $section1['background_image'],
+      'title_type' => $section1['title_type'],
+      'title' => $section1['title_type'] === 'text' ? $section1['title'] : $section1['title_image'],
+      'lists' => $section1['lists_section1'],
+    );
+  }
 
-  $section2 = $custom_fields['section-2'];
-  $pre_section['Section2'] = array(
-    'widget' => 'section-2',
-    'title_type' => $section2['title_type'],
-    'title' => $section2['title_type'] === 'text' ? $section2['title'] : $section2['title_image'],
-    'title_color' => $section2['title_color'],
-    'lists' => $section2['lists_section2'],
-  );
+  if ( $custom_fields['status_section2'] ) {
+    $section2 = $custom_fields['section-2'];
+    $pre_section['Section2'] = array(
+      'widget' => 'section-2',
+      'title_type' => $section2['title_type'],
+      'title' => $section2['title_type'] === 'text' ? $section2['title'] : $section2['title_image'],
+      'title_color' => $section2['title_color'],
+      'lists' => $section2['lists_section2'],
+    );
+  }
 
-  $section3 = $custom_fields['section-3'];
-  $pre_section['Section3'] = array(
-    'widget' => 'section-3',
-    'lists' => $section3['video_lists'],
-  );
+  if ( $custom_fields['status_section3'] ) {
+    $section3 = $custom_fields['section-3'];
+    $pre_section['Section3'] = array(
+      'widget' => 'section-3',
+      'lists' => $section3['video_lists'],
+    );
+  }
 
   // check promotion day and (send section with empty string or not send section)
-  if (isset($custom_fields['section-4'])) {
+  if ($custom_fields['status_section4'] && isset($custom_fields['section-4'])) {
     $section4 = $custom_fields['section-4'];
     $online = array(
       'widget' => 'section-4',
@@ -102,47 +108,46 @@ function custom_section_items($custom_fields, $sort_section) {
       'image_mobile' => $section4['image_background_mobile'],
       'link' => $section4['link'],
     );
-    $outline = array(
-      'widget' => 'section-4',
-      'image_desktop' => "",
-      'image_mobile' => "",
-      'link' => "",
-    );
-    $add_online = false;
+
     if (!empty($section4['start_promotion_day']) && !empty($section4['end_promotion_day'])) {
       if ($section4['start_promotion_day'] <= $current_date && $section4['end_promotion_day'] > $current_date) {
-        $add_online = true;
+        $pre_section['Section4'] = $online;
       } 
     } else if (!empty($section4['start_promotion_day'])) {
       if ($section4['start_promotion_day'] <= $current_date) {
-        $add_online = true;
+        $pre_section['Section4'] = $online;
       }
     } else if (!empty($section4['end_promotion_day'])) {
       if ($section4['end_promotion_day'] > $current_date) {
-        $add_online = true;
+        $pre_section['Section4'] = $online;
       }
     }
-    $pre_section['Section4'] = $add_online ? $online : $outline;
   }
  
-  $section5 = $custom_fields['section-5'];
-  $pre_section['Section5'] = array(
-    'widget' => 'section-5',
-    'image_desktop' => $section5['image_background_desktop'],
-    'image_mobile' => $section5['image_background_mobile'],
-    'button_color' => $section5['button_color'],
-  );
+  if ( $custom_fields['status_section5']) {
+    $section5 = $custom_fields['section-5'];
+    $pre_section['Section5'] = array(
+      'widget' => 'section-5',
+      'image_desktop' => $section5['image_background_desktop'],
+      'image_mobile' => $section5['image_background_mobile'],
+      'button_color' => $section5['button_color'],
+    );
+  }
 
-  $section6 = $custom_fields['section-6'];
-  $pre_section['Section6'] = array(
-    'widget' => 'section-6',
-    'lists' => $section6['related_product'],
-  );
-
+  if ( $custom_fields['status_section6']) {
+    $section6 = $custom_fields['section-6'];
+    $pre_section['Section6'] = array(
+      'widget' => 'section-6',
+      'lists' => $section6['related_product'],
+    );
+  }
+  
   $count = 0;
   while ($count < 6) {
     $seq = $sort_section[$count]['section_number'];
-    $section[] = $pre_section[$seq];
+    if ( $pre_section[$seq] ) {
+      $section[] = $pre_section[$seq];
+    }
     $count++;
   }
   return $section;
@@ -206,6 +211,8 @@ function get_products_list() {
   $args = array(
     'post_type' => 'products',
     'post_status' => 'publish',
+    'order' => 'menu-order',
+    'order_by' => 'acf',
     'posts_per_page' => 200
   );
 
@@ -279,57 +286,7 @@ function get_showroom_infinity() {
 
 
 
-// register route and query lists of videos to use in selector of home-managements 
-function get_selector_video() {
-	$args = array (
-    'post_type' => 'page',
-    'post_status' => 'publish',
-    'title' => 'home-managements',
-  );
 
-  $videos = array();
-  $query = new WP_Query( $args );
-
-  if ($query->have_posts()) {
-    while ($query -> have_posts()) {
-      $query->the_post();
-      $custom_fields = get_fields(get_the_ID());
-
-      if (!empty($custom_fields['home_video']) && is_array($custom_fields['home_video'])) {
-        $home_video = $custom_fields['home_video'];
-        foreach ( $home_video as $video ) {
-          $videos[] = $video;
-        }
-      
-      }	
-    }
-    wp_reset_postdata();
-  } else {
-    return new WP_REST_Response( array( 'message' => 'Sorry, no posts matched your criteria.' ), 404 );
-  }
-
-	return new WP_REST_Response( $videos, 200 );
-}
-
-// filter video which is selected
-function get_select_video($custom_fields) {
-  $home_video = $custom_fields['home_video'];
-  $select_video = "";
-
-  if ($custom_fields['video_id']) {
-    $selector = $custom_fields['video_id'];
-    foreach ( $home_video as $video ) {
-      $file_name = basename($video['video']);
-      if ( $file_name === $selector ) {
-        $select_video = $video['video'];
-      }
-    }
-  } else {
-    $select_video = $home_video[0]['video'];
-  }
-
-  return $select_video;
-}
 
 // query fields of home page
 function get_home_item() {
@@ -354,7 +311,11 @@ function get_home_item() {
 
     $post_id = get_the_ID();
     $custom_fields = get_fields($post_id);
-    $select_video = get_select_video($custom_fields);
+    $select_video = "";
+    if ( $custom_fields['home_video'][0] ) {
+      $select_video = $custom_fields['home_video'][0]['video'];
+    }
+    // $select_video = get_select_video($custom_fields);
 
     $items = array(
       'id' => $post_id,
@@ -427,3 +388,56 @@ add_action( 'rest_api_init', 'pluginname_register_api_endpoints' );
 
 // }
 // register_deactivation_hook( __FILE__, 'pluginprefix_deactivate' );
+
+
+// register route and query lists of videos to use in selector of home-managements 
+// function get_selector_video() {
+// 	$args = array (
+//     'post_type' => 'page',
+//     'post_status' => 'publish',
+//     'title' => 'home-managements',
+//   );
+
+//   $videos = array();
+//   $query = new WP_Query( $args );
+
+//   if ($query->have_posts()) {
+//     while ($query -> have_posts()) {
+//       $query->the_post();
+//       $custom_fields = get_fields(get_the_ID());
+
+//       if (!empty($custom_fields['home_video']) && is_array($custom_fields['home_video'])) {
+//         $home_video = $custom_fields['home_video'];
+//         foreach ( $home_video as $video ) {
+//           $videos[] = $video;
+//         }
+      
+//       }	
+//     }
+//     wp_reset_postdata();
+//   } else {
+//     return new WP_REST_Response( array( 'message' => 'Sorry, no posts matched your criteria.' ), 404 );
+//   }
+
+// 	return new WP_REST_Response( $videos, 200 );
+// }
+
+// filter video which is selected
+// function get_select_video($custom_fields) {
+//   $home_video = $custom_fields['home_video'];
+//   $select_video = "";
+
+//   if ($custom_fields['video_id']) {
+//     $selector = $custom_fields['video_id'];
+//     foreach ( $home_video as $video ) {
+//       $file_name = basename($video['video']);
+//       if ( $file_name === $selector ) {
+//         $select_video = $video['video'];
+//       }
+//     }
+//   } else {
+//     $select_video = $home_video[0]['video'];
+//   }
+
+//   return $select_video;
+// }
