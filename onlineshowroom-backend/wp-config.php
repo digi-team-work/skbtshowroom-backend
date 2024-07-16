@@ -36,6 +36,12 @@ define('WP_MEMORY_LIMIT', $wp_memory_limit );
 define('WP_MAX_MEMORY_LIMIT', $wp_max_memory_limit );
 
 
+// URL parameters
+define('WP_ENVIRONMENT_TYPE', 'production');
+define('WP_BASE_URL_DEV', 'http://wordpress:8080/onlineshowroom-backend/');
+define('WP_BASE_URL_PROD', 'https://skbt-main.digi-team.work/onlineshowroom-backend/');
+
+
 //Using environment variables for DB connection information
 
 // ** Database settings - You can get this info from your web host ** //
@@ -109,7 +115,9 @@ $table_prefix = 'wp_';
  *
  * @link https://wordpress.org/support/article/debugging-in-wordpress/
  */
-define( 'WP_DEBUG', false );
+define('WP_DEBUG', true);
+define('WP_DEBUG_LOG', true);
+define('WP_DEBUG_DISPLAY', false);
 
 /* That's all, stop editing! Happy blogging. */
 /**https://developer.wordpress.org/reference/functions/is_ssl/ */
