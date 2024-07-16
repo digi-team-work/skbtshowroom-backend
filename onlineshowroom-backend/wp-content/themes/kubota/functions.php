@@ -214,6 +214,7 @@ add_action( 'init', 'twentytwentyfour_pattern_categories' );
 function fetch_product_ids_from_api() {
     $response = wp_remote_get('https://kubota.campaignserv.com/api/skl/product/showroom-list');
     if (is_wp_error($response)) {
+		var_dump($response);
         return [];
     }
 
@@ -252,7 +253,7 @@ add_filter('acf/load_field/name=product_id', 'populate_acf_product_id_field');
 // add options for selector video in home-managements
 function fetch_video_fields() {
 	try {
-		$response = wp_remote_get(WP_BASE_URL_DEV.'wp-json/restapi/v2/videos');
+		$response = wp_remote_get(WP_BASE_URL_PROD.'wp-json/restapi/v2/videos');
 		if (is_wp_error($response)) {
 			return [];
 		} 

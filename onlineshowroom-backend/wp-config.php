@@ -37,7 +37,7 @@ define('WP_MAX_MEMORY_LIMIT', $wp_max_memory_limit );
 
 
 // URL parameters
-define('WP_ENVIRONMENT_TYPE', 'production');
+define('WP_ENVIRONMENT_TYPE', 'development');
 define('WP_BASE_URL_DEV', 'http://wordpress:8080/onlineshowroom-backend/');
 define('WP_BASE_URL_PROD', 'https://skbt-main.digi-team.work/onlineshowroom-backend/');
 
