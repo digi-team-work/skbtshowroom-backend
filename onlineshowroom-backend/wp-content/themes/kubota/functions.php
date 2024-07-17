@@ -251,8 +251,7 @@ add_filter('acf/load_field/name=product_id', 'populate_acf_product_id_field');
 
 // text field successfully
 // update section number of sort selector section
-function update_section_number($number, $post_id) {
-
+function update_section_number($post_id) {
 	$section = array(
 		1 => 'Image Grid Section',
 		2 => 'Image Slide Section',
@@ -261,14 +260,18 @@ function update_section_number($number, $post_id) {
 		5 => 'Booking Section',
 		6 => 'Related Product Section',
 	);
-	update_row(
-		'sort_selector_section', 
-		$number,
+	$sort_selector_section = array();
+	for ($i = 1; $i <= 6; $i++) {
+		$sort_selector_section[] = array(
+			'section_number' => $section[$i]
+		);
+	}
+	update_field('product_field', 
 		array(
-			'section_number' => $section[$number]
-		),
+			'sort_selector_section' => $sort_selector_section
+		), 
 		$post_id
-	 );
+	);
 }
 
 // hook when create new post in post type products
@@ -277,11 +280,7 @@ function add_acf_repeater_product($post_id, $post, $update) {
 		if ($update) {
 			return;
 		}
-		$count = 1;
-		while ($count <= 6) {
-			update_section_number($count, $post_id);
-			$count = $count + 1;
-		}
+		update_section_number($post_id);
 		update_post_meta($post_id, '_initialized', true);
 	}
 }
@@ -289,8 +288,6 @@ add_action('wp_insert_post', 'add_acf_repeater_product', 10, 3);
 
 function readonly_selector_section($field) {
 	if ( is_admin() && get_post_type() === 'products') {
-		
-
 		$post = get_post();
 		if ($post) {
 			$initialized = get_post_meta($post->ID, '_initialized', true);
@@ -305,7 +302,10 @@ add_filter('acf/prepare_field/name=section_number', 'readonly_selector_section')
 
 function display_message_on_non_admin_pages() {
 	$request_uri = $_SERVER['REQUEST_URI'];
-    if (!is_admin() && strpos($request_uri, '/onlineshowroom-backend/rest-api/docs/') === false ) {
+    if (!is_admin() 
+		&& strpos($request_uri, '/onlineshowroom-backend/rest-api/docs/') === false 
+		&& strpos($request_uri, '/onlineshowroom-backend/phpmyadmin/') === false
+		) {
         status_header(200); // Set the HTTP status code to 200
         header('Content-Type: text/plain'); // Set the content type to plain text
         echo 'api running';
@@ -314,6 +314,12 @@ function display_message_on_non_admin_pages() {
 }
 add_action('template_redirect', 'display_message_on_non_admin_pages');
 
+function increase_per_page_max($params){
+    $params['per_page']['maximum'] = 200;
+    return $params;
+}
+
+add_filter('rest_products_collection_params', 'increase_per_page_max');
 
 // add options for selector video in home-managements
 // function fetch_video_fields() {
@@ -367,7 +373,14 @@ add_action('template_redirect', 'display_message_on_non_admin_pages');
 
 
 
-
+	// update_row(
+	// 	'sort_selector_section', 
+	// 	$number,
+	// 	array(
+	// 		'section_number' => $section[$number]
+	// 	),
+	// 	$post_id
+	//  );
 
 
 
