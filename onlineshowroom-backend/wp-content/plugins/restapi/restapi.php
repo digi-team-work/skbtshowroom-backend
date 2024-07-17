@@ -60,6 +60,7 @@ function custom_section_items($custom_fields, $sort_section) {
   $section = array();
   $pre_section = array();
 
+  // banner
   $banner = $custom_fields['section-banner'];
   $section[] = array(
     'widget' => 'section-banner',
@@ -68,9 +69,10 @@ function custom_section_items($custom_fields, $sort_section) {
     'image_mobile' => $banner['banner_type'] === 'image' ? $banner['banner_image_mobile'] : "",
   );
 
+  // section 1
   if ( $custom_fields['status_section1']) {
     $section1 = $custom_fields['section-1'];
-    $pre_section['Section1'] = array(
+    $pre_section['Image Grid Section'] = array(
       'widget' => 'section-1',
       'background_type' => $section1['background_type'],
       'background' => $section1['background_type'] === 'color' ? $section1['background'] : $section1['background_image'],
@@ -80,9 +82,10 @@ function custom_section_items($custom_fields, $sort_section) {
     );
   }
 
+  // section 2
   if ( $custom_fields['status_section2'] ) {
     $section2 = $custom_fields['section-2'];
-    $pre_section['Section2'] = array(
+    $pre_section['Image Slide Section'] = array(
       'widget' => 'section-2',
       'title_type' => $section2['title_type'],
       'title' => $section2['title_type'] === 'text' ? $section2['title'] : $section2['title_image'],
@@ -91,14 +94,16 @@ function custom_section_items($custom_fields, $sort_section) {
     );
   }
 
+  // section 3
   if ( $custom_fields['status_section3'] ) {
     $section3 = $custom_fields['section-3'];
-    $pre_section['Section3'] = array(
+    $pre_section['Video Section'] = array(
       'widget' => 'section-3',
       'lists' => $section3['video_lists'],
     );
   }
 
+  // section 4
   // check promotion day and (send section with empty string or not send section)
   if ($custom_fields['status_section4'] && isset($custom_fields['section-4'])) {
     $section4 = $custom_fields['section-4'];
@@ -111,22 +116,23 @@ function custom_section_items($custom_fields, $sort_section) {
 
     if (!empty($section4['start_promotion_day']) && !empty($section4['end_promotion_day'])) {
       if ($section4['start_promotion_day'] <= $current_date && $section4['end_promotion_day'] > $current_date) {
-        $pre_section['Section4'] = $online;
+        $pre_section['Promotion Section'] = $online;
       } 
     } else if (!empty($section4['start_promotion_day'])) {
       if ($section4['start_promotion_day'] <= $current_date) {
-        $pre_section['Section4'] = $online;
+        $pre_section['Promotion Section'] = $online;
       }
     } else if (!empty($section4['end_promotion_day'])) {
       if ($section4['end_promotion_day'] > $current_date) {
-        $pre_section['Section4'] = $online;
+        $pre_section['Promotion Section'] = $online;
       }
     }
   }
  
+  // section 5
   if ( $custom_fields['status_section5']) {
     $section5 = $custom_fields['section-5'];
-    $pre_section['Section5'] = array(
+    $pre_section['Booking Section'] = array(
       'widget' => 'section-5',
       'image_desktop' => $section5['image_background_desktop'],
       'image_mobile' => $section5['image_background_mobile'],
@@ -134,14 +140,16 @@ function custom_section_items($custom_fields, $sort_section) {
     );
   }
 
+  // section 6
   if ( $custom_fields['status_section6']) {
     $section6 = $custom_fields['section-6'];
-    $pre_section['Section6'] = array(
+    $pre_section['Related Product Section'] = array(
       'widget' => 'section-6',
       'lists' => $section6['related_product'],
     );
   }
   
+  // sort sections
   $count = 0;
   while ($count < 6) {
     $seq = $sort_section[$count]['section_number'];
@@ -179,6 +187,7 @@ function get_product_detail(WP_REST_Request $request) {
 
       global $post;
       $post_slug = $post->post_name;
+
       $path = 'products/'.$post_slug.'/';
       $data = get_seo_data($path);
 
@@ -261,6 +270,7 @@ function get_showroom_infinity() {
 
     $path = 'showroom-infinity/';
     $data = get_seo_data($path);
+    $meta = get_post_meta(211, '_initialized', true);
 
     $showroom = array();
     $query = new WP_Query( $args );
@@ -275,6 +285,7 @@ function get_showroom_infinity() {
       'image_showroom' => $custom_fields,
       'products' => $products,
       'seo_data' => $data,
+      'test' => $meta,
     );
 
     return new WP_REST_Response($showroom, 200);

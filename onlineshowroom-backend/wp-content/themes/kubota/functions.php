@@ -252,11 +252,20 @@ add_filter('acf/load_field/name=product_id', 'populate_acf_product_id_field');
 // text field successfully
 // update section number of sort selector section
 function update_section_number($number, $post_id) {
+
+	$section = array(
+		1 => 'Image Grid Section',
+		2 => 'Image Slide Section',
+		3 => 'Video Section',
+		4 => 'Promotion Section',
+		5 => 'Booking Section',
+		6 => 'Related Product Section',
+	);
 	update_row(
 		'sort_selector_section', 
 		$number,
 		array(
-			'section_number' => 'Section'.$number
+			'section_number' => $section[$number]
 		),
 		$post_id
 	 );
@@ -273,10 +282,36 @@ function add_acf_repeater_product($post_id, $post, $update) {
 			update_section_number($count, $post_id);
 			$count = $count + 1;
 		}
+		update_post_meta($post_id, '_initialized', true);
 	}
 }
 add_action('wp_insert_post', 'add_acf_repeater_product', 10, 3);
 
+function readonly_selector_section($field) {
+	if ( is_admin() && get_post_type() === 'products') {
+		
+
+		$post = get_post();
+		if ($post) {
+			$initialized = get_post_meta($post->ID, '_initialized', true);
+			if ( $initialized ) {
+				$field['readonly'] = 1;
+				return $field;
+			}
+		}
+	}
+}
+add_filter('acf/prepare_field/name=section_number', 'readonly_selector_section');
+
+function display_message_on_non_admin_pages() {
+    if (!is_admin()) {
+        status_header(200); // Set the HTTP status code to 200
+        header('Content-Type: text/plain'); // Set the content type to plain text
+        echo 'api running';
+        exit;
+    }
+}
+add_action('template_redirect', 'display_message_on_non_admin_pages');
 
 
 // add options for selector video in home-managements
@@ -321,19 +356,13 @@ add_action('wp_insert_post', 'add_acf_repeater_product', 10, 3);
 // }
 // add_filter('acf/load_field/name=video_id', 'populate_acf_selector_field');
 
-// function readonly_selector_section($field) {
-// 	if ( is_admin() && get_post_type() === 'products') {
-		
-// 		if ( $field['value'] && strpos($field['value'][0]['section_number'], 'Section')) {
-// 			$field['readonly'] = true;
-// 			return $field;
-// 		} else {
-// 			$field['readonly'] = false;
-// 			return $field;
-// 		}
-// 	}
-// }
-// add_filter('acf/load_value/name=sort_selector_section', 'readonly_selector_section');
+		// if ( $field['value'] && strpos($field['value'][0]['section_number'], 'Section')) {
+		// 	$field['disabled'] = true;
+		// 	return $field;
+		// } else {
+		// 	$field['disabled'] = false;
+		// 	return $field;
+		// }
 
 
 
