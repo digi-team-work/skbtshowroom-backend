@@ -78,6 +78,7 @@ function custom_section_items($custom_fields, $sort_section) {
       'background' => $section1['background_type'] === 'color' ? $section1['background'] : $section1['background_image'],
       'title_type' => $section1['title_type'],
       'title' => $section1['title_type'] === 'text' ? $section1['title'] : $section1['title_image'],
+      'mascot' => $section1['mascot'],
       'lists' => $section1['lists_section1'],
     );
   }
@@ -359,10 +360,10 @@ function pluginname_register_api_endpoints() {
     'callback' => 'get_home_item',
   ));
 
-  register_rest_route( 'restapi/v2', '/videos', array(
-    'methods' => 'GET',
-    'callback' => 'get_selector_video',
-  ));
+  // register_rest_route( 'restapi/v2', '/videos', array(
+  //   'methods' => 'GET',
+  //   'callback' => 'get_selector_video',
+  // ));
 
   register_rest_route( 'restapi/v2', '/products', array(
     'methods' => 'GET',

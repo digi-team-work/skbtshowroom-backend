@@ -304,7 +304,8 @@ function readonly_selector_section($field) {
 add_filter('acf/prepare_field/name=section_number', 'readonly_selector_section');
 
 function display_message_on_non_admin_pages() {
-    if (!is_admin()) {
+	$request_uri = $_SERVER['REQUEST_URI'];
+    if (!is_admin() && strpos($request_uri, '/onlineshowroom-backend/rest-api/docs/') === false ) {
         status_header(200); // Set the HTTP status code to 200
         header('Content-Type: text/plain'); // Set the content type to plain text
         echo 'api running';
