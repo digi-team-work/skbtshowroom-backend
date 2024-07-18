@@ -253,7 +253,7 @@ function get_products_list() {
         $products[] = array(
           'id' => get_the_ID(),
           'type' => $custom_fields['selector_type'],
-          'image_showroom' => $custom_fields['image_showroom']
+          'image_showroom' => $custom_fields['product_field']['image_showroom']
         );
       } else if ( $custom_fields['selector_type'] === 'person' && $count_person === 0) {
         $products[] = array(
