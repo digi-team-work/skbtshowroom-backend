@@ -253,7 +253,7 @@ function get_products_list() {
         $products[] = array(
           'id' => get_the_ID(),
           'type' => $custom_fields['selector_type'],
-          // 'person' => $custom_fields['person_field'],
+          'image_showroom' => $custom_fields['image_showroom']
         );
       } else if ( $custom_fields['selector_type'] === 'person' && $count_person === 0) {
         $products[] = array(
@@ -293,8 +293,6 @@ function get_showroom_infinity() {
 
     $path = 'showroom-infinity/';
     $data = get_seo_data($path);
-    $object = get_field_object('sort_selector_section', 215);
-
 
     $showroom = array();
     $query = new WP_Query( $args );
@@ -309,7 +307,6 @@ function get_showroom_infinity() {
       'image_showroom' => $custom_fields,
       'products' => $products,
       'seo_data' => $data,
-      'test' => $object,
     );
 
     return new WP_REST_Response($showroom, 200);

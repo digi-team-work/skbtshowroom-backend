@@ -235,7 +235,7 @@ function fetch_product_ids_from_api() {
 }
 
 function populate_acf_product_id_field($field) {
-	if ( is_admin() && get_post_type() === 'products') {
+	if ( is_admin() ) {
 		$products = fetch_product_ids_from_api();
 
 		if (!empty($products)) {
@@ -265,18 +265,10 @@ function update_section_number($post_id) {
 			'section_number' => $section[$i]
 		);
 	}
-	// update_field('product_field', 
-	// 	array(
-	// 		'sort_selector_section' => $sort_selector_section
-	// 	), 
-	// 	$post_id
-	// );
-	update_row(
-		'sort_selector_section',
-		1,
-			array(
-				'section_number' => $section[1]
-			),
+	update_field('product_field', 
+		array(
+			'sort_selector_section' => $sort_selector_section
+		), 
 		$post_id
 	);
 }
