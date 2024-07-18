@@ -76,20 +76,6 @@ function custom_section_items($custom_fields, $sort_section) {
       array('widget' => 'section-1'),
       $section1
     );
-    
-    // $pre_section['Image Grid Section'] = $section1;
-
-    // $pre_section['Image Grid Section'] = array(
-    //   'widget' => 'section-1',
-    //   'background_image' => $section1['background_image'],
-    //   'background_color' => $section1['background_color'],
-    //   'background_size' => $section1['background_size'],
-    //   'background_position' => $section1['background_position'],
-    //   'title_type' => $section1['title_type'],
-    //   'title' => $section1['title_type'] === 'text' ? $section1['title'] : $section1['title_image'],
-    //   'mascot' => $section1['mascot'],
-    //   'lists' => $section1['lists_section1'],
-    // );
   }
 
   // section 2
@@ -99,18 +85,6 @@ function custom_section_items($custom_fields, $sort_section) {
       array('widget' => 'section-2'),
       $section2
     );
-
-    // $pre_section['Image Slide Section'] = array(
-    //   'widget' => 'section-2',
-    //   'background_image' => $section1['background_image'],
-    //   'background_color' => $section1['background_color'],
-    //   'background_size' => $section1['background_size'],
-    //   'background_position' => $section1['background_position'],
-    //   'title_type' => $section2['title_type'],
-    //   'title' => $section2['title_type'] === 'text' ? $section2['title'] : $section2['title_image'],
-    //   'title_color' => $section2['title_color'],
-    //   'lists' => $section2['lists_section2'],
-    // );
   }
 
   // section 3
@@ -157,22 +131,32 @@ function custom_section_items($custom_fields, $sort_section) {
       array('widget' => 'section-5'),
       $section5
     );
-    // $pre_section['Booking Section'] = array(
-    //   'widget' => 'section-5',
-    //   'background_color' => $section5['background_color'],
-    //   'image_background_desktop' => $section5['image_background_desktop'],
-    //   'image_background_mobile' => $section5['image_background_mobile'],
-    //   'button' => $section5['button'],
-    // );
   }
 
   // section 6
   if ( $custom_fields['status_section6']) {
     $section6 = $custom_fields['section-6'];
+    $related = $section6['related_product'];
+    $products_detail = [];
+
+    foreach ( $related as $product ) {
+      $product_id = intval($product['product_id']);
+      $response = wp_remote_get('https://kubota.campaignserv.com/api/skl/product/showroom-detail?id='.$product_id);
+      if (is_wp_error($response)) {
+          return;
+      }
+      $body = wp_remote_retrieve_body($response);
+      $data = json_decode($body, true);
+      if (!is_array($data)) {
+          return;
+      }
+      $products_detail[] = $data[0];
+    }
+
     $pre_section['Related Product Section'] = array(
       'widget' => 'section-6',
       'title' => $section6['title'],
-      'lists' => $section6['related_product'],
+      'lists' => $products_detail,
     );
   }
   
@@ -251,7 +235,7 @@ function get_products_list() {
     'order_by' => 'acf',
     'posts_per_page' => 200
   );
-
+  
   try {
     $query = new WP_Query( $args );
     $products = array();
@@ -261,16 +245,25 @@ function get_products_list() {
       return [];
     }
 
+    $count_person = 0;
     while ( $query->have_posts()) {
       $query->the_post();
       $custom_fields = get_fields(get_the_ID());
-      $products[] = array(
-        'id' => get_the_ID(),
-        'type' => $custom_fields['selector_type'],
-        'image_showroom' => $custom_fields['image_showroom'],
-        'person_image' => $custom_fields['person_image'],
-        'person_video' => $custom_fields['person_video'],
-      );
+      if ( $custom_fields['selector_type'] === 'product' ) {
+        $products[] = array(
+          'id' => get_the_ID(),
+          'type' => $custom_fields['selector_type'],
+          // 'person' => $custom_fields['person_field'],
+        );
+      } else if ( $custom_fields['selector_type'] === 'person' && $count_person === 0) {
+        $products[] = array(
+          'id' => get_the_ID(),
+          'type' => $custom_fields['selector_type'],
+          'person' => $custom_fields['person_field'],
+        );
+        $count_person = 1;
+      }
+      
 
     }
     wp_reset_postdata();
@@ -300,7 +293,9 @@ function get_showroom_infinity() {
 
     $path = 'showroom-infinity/';
     $data = get_seo_data($path);
-    
+    $object = get_field_object('sort_selector_section', 215);
+
+
     $showroom = array();
     $query = new WP_Query( $args );
 
@@ -314,6 +309,7 @@ function get_showroom_infinity() {
       'image_showroom' => $custom_fields,
       'products' => $products,
       'seo_data' => $data,
+      'test' => $object,
     );
 
     return new WP_REST_Response($showroom, 200);

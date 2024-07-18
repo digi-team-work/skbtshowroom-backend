@@ -235,14 +235,13 @@ function fetch_product_ids_from_api() {
 }
 
 function populate_acf_product_id_field($field) {
-		if ( is_admin() && get_post_type() === 'products') {
-			$products = fetch_product_ids_from_api();
+	if ( is_admin() && get_post_type() === 'products') {
+		$products = fetch_product_ids_from_api();
 
-			if (!empty($products)) {
-					$field['choices'] = $products;
-			}
-		}
-
+		if (!empty($products)) {
+				$field['choices'] = $products;
+		} 
+	}
     return $field;
 }
 add_filter('acf/load_field/name=product_id', 'populate_acf_product_id_field');
@@ -266,10 +265,18 @@ function update_section_number($post_id) {
 			'section_number' => $section[$i]
 		);
 	}
-	update_field('product_field', 
-		array(
-			'sort_selector_section' => $sort_selector_section
-		), 
+	// update_field('product_field', 
+	// 	array(
+	// 		'sort_selector_section' => $sort_selector_section
+	// 	), 
+	// 	$post_id
+	// );
+	update_row(
+		'sort_selector_section',
+		1,
+			array(
+				'section_number' => $section[1]
+			),
 		$post_id
 	);
 }
@@ -281,24 +288,25 @@ function add_acf_repeater_product($post_id, $post, $update) {
 			return;
 		}
 		update_section_number($post_id);
+
 		update_post_meta($post_id, '_initialized', true);
 	}
 }
 add_action('wp_insert_post', 'add_acf_repeater_product', 10, 3);
 
-function readonly_selector_section($field) {
-	if ( is_admin() && get_post_type() === 'products') {
-		$post = get_post();
-		if ($post) {
-			$initialized = get_post_meta($post->ID, '_initialized', true);
-			if ( $initialized ) {
-				$field['readonly'] = 1;
-				return $field;
-			}
-		}
-	}
-}
-add_filter('acf/prepare_field/name=section_number', 'readonly_selector_section');
+// function readonly_selector_section($field) {
+// 	if ( is_admin() && get_post_type() === 'products') {
+// 		$post = get_post();
+// 		if ($post) {
+// 			$initialized = get_post_meta($post->ID, '_initialized', true);
+// 			if ( $initialized ) {
+// 				$field['readonly'] = 1;
+// 				return $field;
+// 			}
+// 		}
+// 	}
+// }
+// add_filter('acf/prepare_field/name=section_number', 'readonly_selector_section');
 
 function display_message_on_non_admin_pages() {
 	$request_uri = $_SERVER['REQUEST_URI'];
