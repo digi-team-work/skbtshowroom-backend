@@ -66,7 +66,7 @@ function custom_section_items($custom_fields, $sort_section) {
     'widget' => 'section-banner',
     'banner_type' => $banner['banner_type'], 
     'image_background_desktop' => $banner['banner_type'] === 'image' ? $banner['banner_image_desktop'] : $banner['banner_link_desktop'],
-    'image_background_mobile' => $banner['banner_type'] === 'image' ? $banner['banner_image_mobile'] : "",
+    'image_background_mobile' => $banner['banner_type'] === 'image' ? $banner['banner_image_mobile'] : false,
   );
 
   // section 1
@@ -92,7 +92,6 @@ function custom_section_items($custom_fields, $sort_section) {
     $section3 = $custom_fields['section-3'];
     $pre_section['Video Section'] = array(
       'widget' => 'section-3',
-      'poster' => $section3['poster'],
       'lists' => $section3['video_lists'],
     );
   }
