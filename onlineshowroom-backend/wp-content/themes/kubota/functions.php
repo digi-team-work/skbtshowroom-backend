@@ -321,6 +321,48 @@ function increase_per_page_max($params){
 
 add_filter('rest_products_collection_params', 'increase_per_page_max');
 
+
+// function get_relative_path($url) {
+//     $parsed_url = parse_url($url);
+//     return isset($parsed_url['path']) ? $parsed_url['path'] : $url;
+// }
+
+
+// function format_acf_url($attachment_id) {
+//     if (class_exists('W3TC\\CdnEngine_Base')) {
+//         $cdn_engine = new W3TC\CdnEngine_Base();
+        
+//         $url = wp_get_attachment_url($attachment_id);
+//         $relative_path = get_relative_path($url);
+
+//         $formatted_url = $cdn_engine->format_cdn_url($relative_path);
+
+//         if ($formatted_url === false) {
+//             // Handle or log the failure
+//             error_log('Failed to format URL: ' . $relative_path);
+//             return $url; // Fallback to original URL
+//         }
+
+//         return $formatted_url;
+//     }
+//     return $attachment_id;
+// }
+
+// function modify_acf_field_urls($value, $post_id, $field) {
+//     if ($field['type'] == 'image' || $field['type'] == 'file') {
+// 		// $value['image_desktop'] = 'test';
+//         if (isset($value) && $value !== "") {
+//             $value = 'test';
+//         } 
+// 		// var_dump($value);
+//     }
+//     return $value;
+// }
+
+// add_filter('acf/format_value/type=image', 'modify_acf_field_urls', 10, 3);
+// add_filter('acf/format_value/type=file', 'modify_acf_field_urls', 10, 3);
+
+
 // add options for selector video in home-managements
 // function fetch_video_fields() {
 // 	try {

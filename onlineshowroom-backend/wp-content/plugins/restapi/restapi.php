@@ -54,8 +54,25 @@ function get_seo_data($path) {
   }
 }
 
+
+// function get_type_value() {
+
+// }
+
+// function format_cdn_url($path) {
+
+// }
+
+// function loop_check_section($section, $post_id) {
+//   foreach ($section as $key => $value) {
+//     $field = get_field_object($key, $post_id);
+    
+//   }
+//   return $field['type'];
+// }
+
 // modify data that is queried be seperated in many sections
-function custom_section_items($custom_fields, $sort_section) {
+function custom_section_items($custom_fields, $sort_section, $post_id) {
   $current_date = date('Y-m-d');
   $section = array();
   $pre_section = array();
@@ -68,6 +85,8 @@ function custom_section_items($custom_fields, $sort_section) {
     'image_background_desktop' => $banner['banner_type'] === 'image' ? $banner['banner_image_desktop'] : $banner['banner_link_desktop'],
     'image_background_mobile' => $banner['banner_type'] === 'image' ? $banner['banner_image_mobile'] : false,
   );
+  // $cdn = loop_check_section($section, $post_id);
+
 
   // section 1
   if ( $custom_fields['status_section1']) {
@@ -204,7 +223,7 @@ function get_product_detail(WP_REST_Request $request) {
       $custom_fields = get_fields(get_the_ID())['product_field'];
       $sort_section = $custom_fields['sort_selector_section'];
 
-      $section = custom_section_items($custom_fields, $sort_section);
+      $section = custom_section_items($custom_fields, $sort_section, $post_id);
       
       $items = array(
         'id' => get_the_ID(),
@@ -252,7 +271,7 @@ function get_products_list() {
         $products[] = array(
           'id' => get_the_ID(),
           'type' => $custom_fields['selector_type'],
-          'image_showroom' => $custom_fields['product_field']['image_showroom']
+          'image_showroom' => $custom_fields['product_field']['image_showroom'],
         );
       } else if ( $custom_fields['selector_type'] === 'person' && $count_person === 0) {
         $products[] = array(
@@ -302,8 +321,17 @@ function get_showroom_infinity() {
 
     $query->the_post();
     $custom_fields = get_fields(get_the_ID());
+
+    $image_showroom = array();
+    foreach ($custom_fields as $key => $value) {
+      if ($key !== "sound_showroom") {
+          $image_showroom[$key] = $value;
+      }
+  }
+
     $showroom = array(
-      'image_showroom' => $custom_fields,
+      'image_showroom' => $image_showroom,
+      'sound_showroom' => $custom_fields['sound_showroom'],
       'products' => $products,
       'seo_data' => $data,
     );
