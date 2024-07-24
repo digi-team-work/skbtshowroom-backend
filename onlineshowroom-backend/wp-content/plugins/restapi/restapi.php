@@ -54,25 +54,8 @@ function get_seo_data($path) {
   }
 }
 
-
-// function get_type_value() {
-
-// }
-
-// function format_cdn_url($path) {
-
-// }
-
-// function loop_check_section($section, $post_id) {
-//   foreach ($section as $key => $value) {
-//     $field = get_field_object($key, $post_id);
-    
-//   }
-//   return $field['type'];
-// }
-
 // modify data that is queried be seperated in many sections
-function custom_section_items($custom_fields, $sort_section, $post_id) {
+function custom_section_items($custom_fields, $sort_section) {
   $current_date = date('Y-m-d');
   $section = array();
   $pre_section = array();
@@ -85,7 +68,6 @@ function custom_section_items($custom_fields, $sort_section, $post_id) {
     'image_background_desktop' => $banner['banner_type'] === 'image' ? $banner['banner_image_desktop'] : $banner['banner_link_desktop'],
     'image_background_mobile' => $banner['banner_type'] === 'image' ? $banner['banner_image_mobile'] : false,
   );
-  // $cdn = loop_check_section($section, $post_id);
 
 
   // section 1
@@ -93,7 +75,7 @@ function custom_section_items($custom_fields, $sort_section, $post_id) {
     $section1 = $custom_fields['section-1'];
     $pre_section['Image Grid Section'] = array_merge(
       array('widget' => 'section-1'),
-      $section1
+      array('section_1' => $section1['section1_field']),
     );
   }
 
@@ -223,12 +205,13 @@ function get_product_detail(WP_REST_Request $request) {
       $custom_fields = get_fields(get_the_ID())['product_field'];
       $sort_section = $custom_fields['sort_selector_section'];
 
-      $section = custom_section_items($custom_fields, $sort_section, $post_id);
-      
+      $section = custom_section_items($custom_fields, $sort_section);
+      $header = $custom_fields['header_button'];
+
       $items = array(
         'id' => get_the_ID(),
         'title' => get_the_title(),
-        'header' => $custom_fields['header_button'],
+        'header' => $header,
         'section' => $section,
         'seo_data' => $data,
       );
@@ -393,6 +376,7 @@ function pluginname_register_api_endpoints() {
   register_rest_route( 'restapi/v2', '/products/(?P<id>\d+)', array(
     'methods' => 'GET',
     'callback' => 'get_product_detail',
+    'permission_callback' => '__return_true',
     'args' => array(
 						'id' => array(
 							'validate_callback' => function($param, $request, $key) {
@@ -405,34 +389,20 @@ function pluginname_register_api_endpoints() {
   register_rest_route( 'restapi/v2', '/home-managements', array(
     'methods' => 'GET',
     'callback' => 'get_home_item',
+    'permission_callback' => '__return_true',
   ));
-
-  // register_rest_route( 'restapi/v2', '/videos', array(
-  //   'methods' => 'GET',
-  //   'callback' => 'get_selector_video',
-  // ));
 
   register_rest_route( 'restapi/v2', '/products', array(
     'methods' => 'GET',
-    'callback' => function() {
-      return get_products_list();
-    },
+    'callback' => 'get_products_list',
+    'permission_callback' => '__return_true',
   ));
 
   register_rest_route('restapi/v2', '/showroom-infinity', array(
     'methods' => 'GET',
     'callback' => 'get_showroom_infinity',
+    'permission_callback' => '__return_true',
   ));
-
-  // register_rest_route('restapi/v2', 'seo', array(
-  //   'methods' => 'GET',
-  //   'callback' => 'get_seo_data',
-  // ));
-
-  // register_rest_route( 'restapi/v2', '/test', array(
-  //   'methods' => 'GET',
-  //   'callback' => 'fetch_from_service',
-  // ));
 }
 add_action( 'rest_api_init', 'pluginname_register_api_endpoints' );
 

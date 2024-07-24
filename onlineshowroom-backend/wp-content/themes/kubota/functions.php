@@ -321,6 +321,40 @@ function increase_per_page_max($params){
 
 add_filter('rest_products_collection_params', 'increase_per_page_max');
 
+function my_acf_format_value( $value, $post_id, $field ) {
+	$url = "";
+	switch ( wp_get_environment_type() ) {
+		case 'local':
+			$url = IMAGE_URL_DEV;
+			break;
+		case 'development':  
+			$url = IMAGE_URL_DEV;
+			break;
+		case 'staging':
+			$url = IMAGE_URL_PROD;
+			break;
+		case 'production':
+			$url = IMAGE_URL_PROD;
+			break;
+		default:
+			$url = IMAGE_URL_PROD;
+			break;
+	}
+    if(is_array($value)){
+        $value = str_replace($url, IMAGE_CDN, $value);
+    }else{
+        $value = str_replace($url, IMAGE_CDN, $value);    
+    }
+	return $value;
+}
+add_filter('acf/format_value/type=image', 'my_acf_format_value',20,3);
+add_filter('acf/format_value/type=file', 'my_acf_format_value',20,3);
+
+// function cdn_attachments_urls($url, $post_id) {
+// 	$domain = 'http://skbt-main.local';
+// 	return str_replace($domain.'/onlineshowroom-backend/wp-content/uploads', IMAGE_URL.'/onlineshowroom-backend/wp-content/uploads', $url);
+//   }
+//   add_filter('wp_get_attachment_url', 'cdn_attachments_urls', 10, 2);
 
 // function get_relative_path($url) {
 //     $parsed_url = parse_url($url);
