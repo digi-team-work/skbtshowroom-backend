@@ -5,3 +5,4 @@
 [2024-07-24T10:59:39+00:00] Error: Count not delete webp versions of the media item [253]
 [2024-07-24T10:59:41+00:00] Error: Count not delete webp versions of the media item [252]
 [2024-07-24T11:05:01+00:00] Error: Count not delete webp versions of the media item [351]
+[2024-07-24T11:47:02+00:00] Error: Count not delete webp versions of the media item [251]
