@@ -314,7 +314,7 @@ function get_showroom_infinity() {
 
     $showroom = array(
       'image_showroom' => $image_showroom,
-      'sound_showroom' => $custom_fields['sound_showroom'],
+      'sound_showroom' => $custom_fields['sound_showroom'] ? $custom_fields['sound_showroom'] : false,
       'products' => $products,
       'seo_data' => $data,
     );
@@ -354,14 +354,15 @@ function get_home_item() {
     $post_id = get_the_ID();
     $custom_fields = get_fields($post_id);
     $select_video = "";
-    if ( $custom_fields['home_video'][0] ) {
+    if ( is_array($custom_fields['home_video']) && $custom_fields['home_video'][0] ) {
       $select_video = $custom_fields['home_video'][0]['video'];
     }
     // $select_video = get_select_video($custom_fields);
 
     $items = array(
       'id' => $post_id,
-      'video_url' => $select_video,
+      // 'video_url' => $custom_fields,
+      'video_url' => $select_video === "" ? false : $select_video,
       'seo_data' => $data,
     );
     return new WP_REST_Response( $items, 200 );

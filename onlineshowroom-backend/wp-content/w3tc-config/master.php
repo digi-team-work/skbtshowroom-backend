@@ -478,7 +478,7 @@
     ],
     "minify.cache.files_regexp": false,
     "cdn.configuration_overloaded": false,
-    "cdn.enabled": false,
+    "cdn.enabled": true,
     "cdn.debug": false,
     "cdn.flush_manually": false,
     "cdn.engine": "azure",
@@ -1100,8 +1100,8 @@
         "monitoring_type": "apm"
     },
     "page": "w3tc_general",
-    "_wpnonce": "98f1c87964",
-    "_wp_http_referer": "\/onlineshowroom-backend\/wp-admin\/admin.php?page=w3tc_general",
+    "_wpnonce": "ae379d692d",
+    "_wp_http_referer": "\/onlineshowroom-backend\/wp-admin\/admin.php?page=w3tc_general&w3tc_message=66a0e0583fc0e",
     "cdn_cnames": [
         "skbtshowro-63f18fa59ed4f402-endpoint.azureedge.net"
     ],
