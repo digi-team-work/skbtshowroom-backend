@@ -41,7 +41,7 @@ define('WP_ENVIRONMENT_TYPE', 'production');
 define('WP_BASE_URL_DEV', 'http://wordpress:8080/onlineshowroom-backend/');
 define('WP_BASE_URL_PROD', 'https://skbt-main.digi-team.work/onlineshowroom-backend/');
 
-define('IMAGE_CDN', 'https://skbtshowrob65396eeec.blob.core.windows.net/blobskbtshowrob65396eeec');
+define('IMAGE_CDN', 'https://skbtshowro-63f18fa59ed4f402-endpoint.azureedge.net/blobskbtshowrob65396eeec');
 define('IMAGE_URL_PROD', 'https://skbt-main.digi-team.work');
 define('IMAGE_URL_DEV', 'http://skbt-main.local');
 
