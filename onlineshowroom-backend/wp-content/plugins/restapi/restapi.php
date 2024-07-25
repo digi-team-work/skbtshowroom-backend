@@ -170,10 +170,10 @@ function custom_section_items($custom_fields, $sort_section) {
 
 // query fields of product detail page and modify to seven sections
 function get_product_detail(WP_REST_Request $request) {
-  $param = $request->get_param('id');
-  $post_id = intval($param);
+  $param = $request->get_param('slug');
+  // $post_id = intval($param);
   $args = array (
-    'post__in' => array($post_id),
+    'name' => $param,
     'post_type' => 'products',
     'post_status' => 'publish',
     'posts_per_page' => 1,
@@ -294,27 +294,25 @@ function get_showroom_infinity() {
     $path = 'showroom-infinity/';
     $data = get_seo_data($path);
 
-    // $detail_field = get_field_object('product_field')['sub_fields'];
     
     $showroom = array();
     $query = new WP_Query( $args );
-
+    
     if ( !$query->have_posts()) {
       return new WP_REST_Response( array( 'message' => 'Sorry, no posts matched your criteria.' ), 404 );
     }
-
+    
     $query->the_post();
     $custom_fields = get_fields(get_the_ID());
-
+    
     $image_showroom = array();
     foreach ($custom_fields as $key => $value) {
       if ($key !== "sound_showroom") {
-          $image_showroom[$key] = $value;
+        $image_showroom[$key] = $value;
       }
-  }
-
+    }
+    
     $showroom = array(
-      // 'test' => $detail_field,
       'image_showroom' => $image_showroom,
       'sound_showroom' => $custom_fields['sound_showroom'] ? $custom_fields['sound_showroom'] : false,
       'products' => $products,
@@ -376,17 +374,10 @@ function get_home_item() {
 
 // register custom api endpoints
 function pluginname_register_api_endpoints() {
-  register_rest_route( 'restapi/v2', '/products/(?P<id>\d+)', array(
+  register_rest_route( 'restapi/v2', '/products/(?P<slug>[^/]+)', array(
     'methods' => 'GET',
     'callback' => 'get_product_detail',
     'permission_callback' => '__return_true',
-    'args' => array(
-						'id' => array(
-							'validate_callback' => function($param, $request, $key) {
-								return is_numeric( $param );
-							}
-						),
-					),
   ));
 
   register_rest_route( 'restapi/v2', '/home-managements', array(
