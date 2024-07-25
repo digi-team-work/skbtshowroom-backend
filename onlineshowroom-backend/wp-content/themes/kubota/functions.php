@@ -212,7 +212,7 @@ add_action( 'init', 'twentytwentyfour_pattern_categories' );
 
 // add related products in product detail section6
 function fetch_product_ids_from_api() {
-    $response = wp_remote_get('https://kubota.campaignserv.com/api/skl/product/showroom-list');
+    $response = wp_remote_get(API_KUBOTA);
     if (is_wp_error($response)) {
         return [];
     }
@@ -286,6 +286,31 @@ function add_acf_repeater_product($post_id, $post, $update) {
 }
 add_action('wp_insert_post', 'add_acf_repeater_product', 10, 3);
 
+// hidden product detail field
+// function hide_field( $field ) {
+// 	if ( is_admin() ) {
+// 		var_dump($field);
+// 		$field['conditional_logic'] = 1;
+// 	}
+// 	return $field;
+// }
+// add_filter( 'acf/load_field/name=product_detail', 'hide_field');
+
+// function wc_set_field($field){
+// 	if( is_admin() ){
+// 		var_dump($field);
+// 		// $pid = get_the_ID();
+// 		// $field['default_value'] = $pid;
+// 		// $field['disabled'] = true;
+// 		$field['hidden'] = true;
+// 	}
+	
+// 	//same in, same out
+// 	return $field;	
+// }
+// add_filter('acf/load_field/name=product_detail','wc_set_field');
+
+
 // function readonly_selector_section($field) {
 // 	if ( is_admin() && get_post_type() === 'products') {
 // 		$post = get_post();
@@ -321,33 +346,60 @@ function increase_per_page_max($params){
 
 add_filter('rest_products_collection_params', 'increase_per_page_max');
 
-function my_acf_format_value( $value, $post_id, $field ) {
-	$url = "";
-	switch ( wp_get_environment_type() ) {
-		case 'local':
-			$url = IMAGE_URL_DEV;
-			break;
-		case 'development':  
-			$url = IMAGE_URL_DEV;
-			break;
-		case 'staging':
-			$url = IMAGE_URL_PROD;
-			break;
-		case 'production':
-			$url = IMAGE_URL_PROD;
-			break;
-		default:
-			$url = IMAGE_URL_PROD;
-			break;
-	}
-    if(!is_array($value)){
-        $value = str_replace($url, IMAGE_CDN, $value);
+// function my_acf_format_value( $value, $post_id, $field ) {
+// 	$url = "";
+// 	switch ( wp_get_environment_type() ) {
+// 		case 'local':
+// 			$url = IMAGE_URL_DEV;
+// 			break;
+// 		case 'development':  
+// 			$url = IMAGE_URL_DEV;
+// 			break;
+// 		case 'staging':
+// 			$url = IMAGE_URL_PROD;
+// 			break;
+// 		case 'production':
+// 			$url = IMAGE_URL_PROD;
+// 			break;
+// 		default:
+// 			$url = IMAGE_URL_PROD;
+// 			break;
+// 	}
+//     if(!is_array($value)){
+//         $value = str_replace($url, IMAGE_CDN, $value);
+// 		return $value;
+//     }
+// 	return $value;
+// }
+// add_filter('acf/format_value/type=image', 'my_acf_format_value',20,3);
+// add_filter('acf/format_value/type=file', 'my_acf_format_value',20,3);
+
+function url_to_cdn( $url ) {
+	$domain = IMAGE_URL;
+	// switch ( wp_get_environment_type() ) {
+	// 	case 'local':
+	// 		$domain = IMAGE_URL_DEV;
+	// 		break;
+	// 	case 'development':  
+	// 		$domain = IMAGE_URL_DEV;
+	// 		break;
+	// 	case 'staging':
+	// 		$domain = IMAGE_URL_PROD;
+	// 		break;
+	// 	case 'production':
+	// 		$domain = IMAGE_URL_PROD;
+	// 		break;
+	// 	default:
+	// 		$domain = IMAGE_URL_PROD;
+	// 		break;
+	// }
+    if($url){
+        $value = str_replace($domain, IMAGE_CDN, $url);
 		return $value;
     }
-	return $value;
+	return $url;
 }
-add_filter('acf/format_value/type=image', 'my_acf_format_value',20,3);
-add_filter('acf/format_value/type=file', 'my_acf_format_value',20,3);
+add_filter('wp_get_attachment_url', 'url_to_cdn');
 
 // function cdn_attachments_urls($url, $post_id) {
 // 	$domain = 'http://skbt-main.local';

@@ -37,14 +37,13 @@ define('WP_MAX_MEMORY_LIMIT', $wp_max_memory_limit );
 
 
 // URL parameters
-define('WP_ENVIRONMENT_TYPE', 'production');
-define('WP_BASE_URL_DEV', 'http://wordpress:8080/onlineshowroom-backend/');
-define('WP_BASE_URL_PROD', 'https://skbt-main.digi-team.work/onlineshowroom-backend/');
+define('WP_ENVIRONMENT_TYPE', getenv('WP_ENVIRONMENT_TYPE'));
+define('WP_BASE_URL', getenv('WP_BASE_URL'));
 
-define('IMAGE_CDN', 'https://skbtshowro-63f18fa59ed4f402-endpoint.azureedge.net/blobskbtshowrob65396eeec');
-define('IMAGE_URL_PROD', 'https://skbt-main.digi-team.work');
-define('IMAGE_URL_DEV', 'http://skbt-main.local');
+define('IMAGE_CDN', getenv('IMAGE_CDN'));
+define('IMAGE_URL', getenv('IMAGE_URL'));
 
+define('API_KUBOTA', getenv('API_KUBOTA'));
 
 //Using environment variables for DB connection information
 

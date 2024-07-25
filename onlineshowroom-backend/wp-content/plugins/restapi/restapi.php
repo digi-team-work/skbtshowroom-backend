@@ -8,23 +8,19 @@
 
 
 function get_seo_data($path) {
-  $base_url = "";
   $url = "";
   switch ( wp_get_environment_type() ) {
     case 'local':
       break;
     case 'development':  
-      $base_url = WP_BASE_URL_DEV;
-      $url = $base_url.'wp-json/yoast/v1/get_head?url=http://skbt-main.local/onlineshowroom-backend/'.$path;
+      $url = WP_BASE_URL.'wp-json/yoast/v1/get_head?url=http://skbt-main.local/onlineshowroom-backend/'.$path;
       break;
     case 'staging':
         break;
     case 'production':
-      $base_url = WP_BASE_URL_PROD;
-      $url = $base_url.'wp-json/yoast/v1/get_head?url='.WP_BASE_URL_PROD.$path;
+      $url = WP_BASE_URL.'wp-json/yoast/v1/get_head?url='.WP_BASE_URL.$path;
       break;
     default:
-      $base_url = WP_BASE_URL_DEV;
       break;
   }
 
@@ -251,10 +247,13 @@ function get_products_list() {
       $query->the_post();
       $custom_fields = get_fields(get_the_ID());
       if ( $custom_fields['selector_type'] === 'product' ) {
+        $post = get_post(get_the_ID()); 
+        $slug = $post->post_name;
         $products[] = array(
           'id' => get_the_ID(),
           'type' => $custom_fields['selector_type'],
           'image_showroom' => $custom_fields['product_field']['image_showroom'],
+          'slug' => $slug,
         );
       } else if ( $custom_fields['selector_type'] === 'person' && $count_person === 0) {
         $products[] = array(
@@ -295,6 +294,8 @@ function get_showroom_infinity() {
     $path = 'showroom-infinity/';
     $data = get_seo_data($path);
 
+    // $detail_field = get_field_object('product_field')['sub_fields'];
+    
     $showroom = array();
     $query = new WP_Query( $args );
 
@@ -313,6 +314,7 @@ function get_showroom_infinity() {
   }
 
     $showroom = array(
+      // 'test' => $detail_field,
       'image_showroom' => $image_showroom,
       'sound_showroom' => $custom_fields['sound_showroom'] ? $custom_fields['sound_showroom'] : false,
       'products' => $products,
