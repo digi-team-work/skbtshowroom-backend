@@ -211,6 +211,7 @@ function get_product_detail(WP_REST_Request $request) {
       $items = array(
         'id' => get_the_ID(),
         'title' => get_the_title(),
+        'slug' => $post_slug,
         'header' => $header,
         'section' => $section,
         'seo_data' => $data,
