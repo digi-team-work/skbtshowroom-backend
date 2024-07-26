@@ -137,6 +137,7 @@ function custom_section_items($custom_fields, $sort_section) {
 
     foreach ( $related as $product ) {
       $product_id = intval($product['product_id']);
+      $target = $product['target'];
       $response = wp_remote_get('https://kubota.campaignserv.com/api/skl/product/showroom-detail?id='.$product_id);
       if (is_wp_error($response)) {
           return;
@@ -146,7 +147,10 @@ function custom_section_items($custom_fields, $sort_section) {
       if (!is_array($data)) {
           return;
       }
-      $products_detail[] = $data[0];
+      $products_detail[] = array_merge(
+        array('target' => $target),
+        $data[0]
+      );
     }
 
     $pre_section['Related Product Section'] = array(
