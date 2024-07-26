@@ -211,7 +211,7 @@ add_action( 'init', 'twentytwentyfour_pattern_categories' );
 /* ---------------------- custom function ---------------------- */
 
 // add related products in product detail section6
-function fetch_product_ids_from_api() {
+function fetch_product_ids_from_api($select) {
     $response = wp_remote_get(API_KUBOTA);
     if (is_wp_error($response)) {
         return [];
@@ -224,19 +224,22 @@ function fetch_product_ids_from_api() {
         return [];
     }
 
-    $options = [];
-    foreach ($data as $product) {
-        if (isset($product['id']) && isset($product['title'])) {
-            $options[$product['id']] = $product['post_type']. ' - ' . $product['title'];
-        }
-    }
-
-    return $options;
+	if ($select === 'options') {
+		$options = [];
+		foreach ($data as $product) {
+			if (isset($product['id']) && isset($product['title'])) {
+				$options[$product['id']] = $product['post_type']. ' - ' . $product['title'];
+			}
+		}
+		return $options;
+	} else  {
+		return $data;
+	}
 }
 
 function populate_acf_product_id_field($field) {
 	if ( is_admin() ) {
-		$products = fetch_product_ids_from_api();
+		$products = fetch_product_ids_from_api('options');
 
 		if (!empty($products)) {
 				$field['choices'] = $products;
@@ -273,42 +276,53 @@ function update_section_number($post_id) {
 	);
 }
 
+
+function acf_get_product_detail($post_id, $post) {
+	if (is_admin() && $post->post_type === 'products') {
+		$products = fetch_product_ids_from_api('all');
+		if (empty($products)) {
+			return;
+		}
+		$field_data = get_field('section-6',$post_id);
+
+		if (is_array($field_data)) {
+			$products_id = array_column($products, 'id');
+			foreach ($field_data['related_product'] as &$product) {
+				$get_id = $product['product_id'];
+				$id = intval($get_id);
+				$index = array_search($id, $products_id);
+				$product['product_detail'] = $products[$index];		
+			}
+			update_field(
+				'section-6',
+				array(
+					'related_product' => $field_data['related_product']
+				),
+				$post_id
+			);
+		}
+	}
+}
+
 // hook when create new post in post type products
 function add_acf_repeater_product($post_id, $post, $update) {
 	if (is_admin() && $post->post_type === 'products') {
 		if ($update) {
+			acf_get_product_detail($post_id, $post);
 			return;
 		}
 		update_section_number($post_id);
-
+		acf_get_product_detail($post_id, $post);
 		update_post_meta($post_id, '_initialized', true);
 	}
 }
 add_action('wp_insert_post', 'add_acf_repeater_product', 10, 3);
 
-// hidden product detail field
-// function hide_field( $field ) {
-// 	if ( is_admin() ) {
-// 		var_dump($field);
-// 		$field['conditional_logic'] = 1;
-// 	}
-// 	return $field;
-// }
-// add_filter( 'acf/load_field/name=product_detail', 'hide_field');
 
-// function wc_set_field($field){
-// 	if( is_admin() ){
-// 		var_dump($field);
-// 		// $pid = get_the_ID();
-// 		// $field['default_value'] = $pid;
-// 		// $field['disabled'] = true;
-// 		$field['hidden'] = true;
-// 	}
-	
-// 	//same in, same out
-// 	return $field;	
-// }
-// add_filter('acf/load_field/name=product_detail','wc_set_field');
+
+// add_filter('acf/pre_save_post' , 'my_pre_save_post', 10, 1 );
+
+
 
 
 // function readonly_selector_section($field) {
