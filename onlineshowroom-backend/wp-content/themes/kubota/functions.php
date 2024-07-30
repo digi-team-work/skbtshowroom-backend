@@ -466,5 +466,5 @@ function the_preview_fix() {
 		return "https://skbt-main.digi-team.work/onlineshowroom/product/".$slug; 
 	}
 }
-add_filter( 'preview_post_link', 'the_preview_fix' );
+add_filter( 'preview_post_link', 'the_preview_fix');
 // add_filter( 'post_type_link', 'the_preview_fix', 10, 2 );

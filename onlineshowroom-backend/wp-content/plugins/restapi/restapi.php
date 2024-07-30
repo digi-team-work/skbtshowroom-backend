@@ -26,7 +26,7 @@ function get_seo_data($path) {
 
   try {
     $args = array(
-      'timeout' => 15,
+      'timeout' => 20,
     );
     // $url = $base_url.'wp-json/yoast/v1/get_head?url=http://skbt-main.local/onlineshowroom-backend/'.$path;
 
@@ -42,8 +42,10 @@ function get_seo_data($path) {
   }
 
     $data = json_decode($body, true);
-    return $data['json'];
-    // return $url;
+    if (isset($data)) {
+      return $data['json'];
+    }
+    return [];
 
   } catch (Exception $e) {
     return new WP_Error(500, $e->getMessage());
