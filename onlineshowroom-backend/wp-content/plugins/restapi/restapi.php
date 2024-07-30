@@ -26,7 +26,7 @@ function get_seo_data($path) {
 
   try {
     $args = array(
-      'timeout' => 30,
+      'timeout' => 10,
     );
     // $url = $base_url.'wp-json/yoast/v1/get_head?url=http://skbt-main.local/onlineshowroom-backend/'.$path;
 
