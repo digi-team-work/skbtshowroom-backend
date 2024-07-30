@@ -78,6 +78,7 @@ function get_detail_object($related) {
     $target = $product['target'];
     $get_detail = parse_key_value_string($product['product_detail']);
     $detail = $get_detail;
+    
     $products_detail[] = array_merge(
       array('target'=> $target),
       $detail
