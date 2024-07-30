@@ -26,14 +26,13 @@ function get_seo_data($path) {
 
   try {
     $args = array(
-      'timeout' => 100,
+      'timeout' => 30,
     );
     // $url = $base_url.'wp-json/yoast/v1/get_head?url=http://skbt-main.local/onlineshowroom-backend/'.$path;
 
     $response = wp_remote_get($url, $args);
       
     if (is_wp_error($response)) {
-      var_dump($response);
       return $response;
     }
 
