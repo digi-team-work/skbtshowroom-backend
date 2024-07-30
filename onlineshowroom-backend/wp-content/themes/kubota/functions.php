@@ -456,7 +456,7 @@ add_filter('wp_get_attachment_url', 'url_to_cdn');
 
 
 // adjust preview url of preview button in adamin page
-function the_preview_fix($post_link, $post) {
+function the_preview_fix() {
 	$type = get_post_type();
 	$current_page_id = get_the_ID();
 	$current_page = get_post($current_page_id);
