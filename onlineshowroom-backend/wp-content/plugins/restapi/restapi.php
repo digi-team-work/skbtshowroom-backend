@@ -50,6 +50,44 @@ function get_seo_data($path) {
   }
 }
 
+
+
+// adjust string to object
+function parse_key_value_string($inputString) {
+  $pairs = explode(' | ', $inputString);
+  $result = array();
+  foreach ($pairs as $pair) {
+      $keyValue = explode(' - ', $pair, 2);
+      if (count($keyValue) == 2) {
+          $key = trim($keyValue[0]);
+          $value = trim($keyValue[1]);
+          $result[$key] = $value;
+      }
+  }
+  return $result;
+}
+
+
+
+// get product detail in section6
+function get_detail_object($related) {
+  $products_detail = [];
+  $target = "";
+
+  foreach ($related as $product) {
+    $target = $product['target'];
+    $get_detail = parse_key_value_string($product['product_detail']);
+    $detail = $get_detail;
+    $products_detail[] = array_merge(
+      array('target'=> $target),
+      $detail
+    );
+  }
+  return $products_detail;
+}
+
+
+
 // modify data that is queried be seperated in many sections
 function custom_section_items($custom_fields, $sort_section) {
   $current_date = date('Y-m-d');
@@ -133,25 +171,7 @@ function custom_section_items($custom_fields, $sort_section) {
   if ( $custom_fields['status_section6']) {
     $section6 = $custom_fields['section-6'];
     $related = $section6['related_product'];
-    $products_detail = [];
-
-    foreach ( $related as $product ) {
-      $product_id = intval($product['product_id']);
-      $target = $product['target'];
-      $response = wp_remote_get('https://kubota.campaignserv.com/api/skl/product/showroom-detail?id='.$product_id);
-      if (is_wp_error($response)) {
-          return;
-      }
-      $body = wp_remote_retrieve_body($response);
-      $data = json_decode($body, true);
-      if (!is_array($data)) {
-          return;
-      }
-      $products_detail[] = array_merge(
-        array('target' => $target),
-        $data[0]
-      );
-    }
+    $products_detail = get_detail_object($related);
 
     $pre_section['Related Product Section'] = array(
       'widget' => 'section-6',
@@ -172,6 +192,8 @@ function custom_section_items($custom_fields, $sort_section) {
   return $section;
 }
 
+
+
 // query fields of product detail page and modify to seven sections
 function get_product_detail(WP_REST_Request $request) {
   $param = $request->get_param('slug');
@@ -179,7 +201,7 @@ function get_product_detail(WP_REST_Request $request) {
   $args = array (
     'name' => $param,
     'post_type' => 'products',
-    'post_status' => 'publish',
+    'post_status' => array('publish', 'draft'),
     'posts_per_page' => 1,
   );
 
@@ -284,6 +306,7 @@ function get_products_list() {
 }
 
 
+/* ------------------------------------------- page ----------------------------------------- */
 
 function get_showroom_infinity() {
   $args = array(
@@ -333,8 +356,6 @@ function get_showroom_infinity() {
 
 
 
-
-
 // query fields of home page
 function get_home_item() {
   $args = array (
@@ -377,6 +398,8 @@ function get_home_item() {
   
 }
 
+
+
 // register custom api endpoints
 function pluginname_register_api_endpoints() {
   register_rest_route( 'restapi/v2', '/products/(?P<slug>[^/]+)', array(
@@ -404,68 +427,3 @@ function pluginname_register_api_endpoints() {
   ));
 }
 add_action( 'rest_api_init', 'pluginname_register_api_endpoints' );
-
-
-// function pluginprefix_activate() { 
-// }
-// register_activation_hook( __FILE__, 'pluginprefix_activate' );
-
-
- 
-// function pluginprefix_deactivate() {
-
-// }
-// register_deactivation_hook( __FILE__, 'pluginprefix_deactivate' );
-
-
-// register route and query lists of videos to use in selector of home-managements 
-// function get_selector_video() {
-// 	$args = array (
-//     'post_type' => 'page',
-//     'post_status' => 'publish',
-//     'title' => 'home-managements',
-//   );
-
-//   $videos = array();
-//   $query = new WP_Query( $args );
-
-//   if ($query->have_posts()) {
-//     while ($query -> have_posts()) {
-//       $query->the_post();
-//       $custom_fields = get_fields(get_the_ID());
-
-//       if (!empty($custom_fields['home_video']) && is_array($custom_fields['home_video'])) {
-//         $home_video = $custom_fields['home_video'];
-//         foreach ( $home_video as $video ) {
-//           $videos[] = $video;
-//         }
-      
-//       }	
-//     }
-//     wp_reset_postdata();
-//   } else {
-//     return new WP_REST_Response( array( 'message' => 'Sorry, no posts matched your criteria.' ), 404 );
-//   }
-
-// 	return new WP_REST_Response( $videos, 200 );
-// }
-
-// filter video which is selected
-// function get_select_video($custom_fields) {
-//   $home_video = $custom_fields['home_video'];
-//   $select_video = "";
-
-//   if ($custom_fields['video_id']) {
-//     $selector = $custom_fields['video_id'];
-//     foreach ( $home_video as $video ) {
-//       $file_name = basename($video['video']);
-//       if ( $file_name === $selector ) {
-//         $select_video = $video['video'];
-//       }
-//     }
-//   } else {
-//     $select_video = $home_video[0]['video'];
-//   }
-
-//   return $select_video;
-// }

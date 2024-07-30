@@ -208,7 +208,40 @@ if ( ! function_exists( 'twentytwentyfour_pattern_categories' ) ) :
 endif;
 add_action( 'init', 'twentytwentyfour_pattern_categories' );
 
-/* ---------------------- custom function ---------------------- */
+
+
+
+
+/* ------------------------------------ custom function ---------------------------------- */
+
+// get field key from field name and post id
+function acf_get_field_key( $field_name, $post_id ) {
+	global $wpdb;
+	$acf_fields = $wpdb->get_results( $wpdb->prepare( "SELECT ID,post_parent,post_name FROM $wpdb->posts WHERE post_excerpt=%s AND post_type=%s" , $field_name , 'acf-field' ) );
+	// get all fields with that name.
+	switch ( count( $acf_fields ) ) {
+		case 0: // no such field
+			return false;
+		case 1: // just one result. 
+			return $acf_fields[0]->post_name;
+	}
+	// result is ambiguous
+	// get IDs of all field groups for this post
+	$field_groups_ids = array();
+	$field_groups = acf_get_field_groups( array(
+		'post_id' => $post_id,
+	) );
+	foreach ( $field_groups as $field_group )
+		$field_groups_ids[] = $field_group['ID'];
+	
+	// Check if field is part of one of the field groups
+	// Return the first one.
+	foreach ( $acf_fields as $acf_field ) {
+		if ( in_array($acf_field->post_parent,$field_groups_ids) )
+			return $acf_field->post_name;
+	}
+	return false;
+}
 
 // add related products in product detail section6
 function fetch_product_ids_from_api($select) {
@@ -251,7 +284,8 @@ add_filter('acf/load_field/name=product_id', 'populate_acf_product_id_field');
 
 
 
-// text field successfully
+/* ------------------------------------- sort selector section --------------------------- */
+
 // update section number of sort selector section
 function update_section_number($post_id) {
 	$section = array(
@@ -276,69 +310,113 @@ function update_section_number($post_id) {
 	);
 }
 
-
-function acf_get_product_detail($post_id, $post) {
-	if (is_admin() && $post->post_type === 'products') {
-		$products = fetch_product_ids_from_api('all');
-		if (empty($products)) {
-			return;
-		}
-		$field_data = get_field('section-6',$post_id);
-
-		if (is_array($field_data)) {
-			$products_id = array_column($products, 'id');
-			foreach ($field_data['related_product'] as &$product) {
-				$get_id = $product['product_id'];
-				$id = intval($get_id);
-				$index = array_search($id, $products_id);
-				$product['product_detail'] = $products[$index];		
-			}
-			update_field(
-				'section-6',
-				array(
-					'related_product' => $field_data['related_product']
-				),
-				$post_id
-			);
-		}
-	}
-}
-
-// hook when create new post in post type products
+// hook when create new post and update post in post type products
 function add_acf_repeater_product($post_id, $post, $update) {
 	if (is_admin() && $post->post_type === 'products') {
 		if ($update) {
-			acf_get_product_detail($post_id, $post);
 			return;
 		}
 		update_section_number($post_id);
-		acf_get_product_detail($post_id, $post);
 		update_post_meta($post_id, '_initialized', true);
 	}
 }
 add_action('wp_insert_post', 'add_acf_repeater_product', 10, 3);
 
+// set readonly in sort selector sevtion 
+function readonly_selector_section($field) {
+	if ( is_admin() && get_post_type() === 'products') {
+		$post = get_post();
+		if ($post) {
+			$initialized = get_post_meta($post->ID, '_initialized', true);
+			if ( $initialized ) {
+				$field['readonly'] = 1;
+				return $field;
+			}
+		}
+	}
+}
+add_filter('acf/prepare_field/name=section_number', 'readonly_selector_section');
 
 
-// add_filter('acf/pre_save_post' , 'my_pre_save_post', 10, 1 );
+
+/* ------------------------------------- related product in section6 --------------------------- */
+
+// adjust data from object to string for saving in textarea field
+// related product in section6
+function create_detail_string($data) {
+	$detail = "";
+	if (isset($data)) {
+		foreach ($data as $key => $value) {
+			$before = $detail;
+			$new = $key." - ".$value." | ";
+			$detail = $before.$new;
+		}
+	}
+	return $detail;
+}
+
+// update product_detail ( textarea field )
+function acf_get_product_detail($post_id) {
+	$post_type = get_post_type($post_id);
+	if (is_admin() && $post_type === 'products') {
+		$products = fetch_product_ids_from_api('all');
+		if (empty($products)) {
+			return;
+		}
+		$values = $_POST['acf'];
+
+		// get field keys of related field
+		$related_fields = array('product_field', 'section-6', 'related_product', 'product_id', 'product_detail');
+		$related_key = [];
+		foreach ($related_fields as $key) {
+			$related_key[$key] = acf_get_field_key($key, $post_id);
+		}
+		
+		// $product_field_key = acf_get_field_key('product_field', $post_id);
+		// $section6_key = acf_get_field_key('section-6', $post_id);
+		// $related_key = acf_get_field_key('related_product', $post_id);
+		// $id_key = acf_get_field_key('product_id', $post_id);
+		// $detail_key = acf_get_field_key('product_detail', $post_id);
+		
+		$section6 = $values[$related_key['product_field']][$related_key['section-6']];
+		// $section6 = $values[$related_key][$section6_key];
+
+		$products_id = array_column($products, 'id');
+		foreach ($section6[$related_key['related_product']] as &$product) {
+			$get_id = $product[$related_key['product_id']];
+			$id = intval($get_id);
+			$index = array_search($id, $products_id);
+			$data = create_detail_string($products[$index]);
+			$product[$related_key['product_detail']] = $data;		
+		}
+		update_field(
+			$related_key['product_field'],
+			array(
+				$related_key['section-6'] => $section6
+			),
+			$post_id
+		);
+		// foreach ($section6[$related_key] as &$product) {
+		// 	$get_id = $product[$id_key];
+		// 	$id = intval($get_id);
+		// 	$index = array_search($id, $products_id);
+		// 	$data = create_detail_string($products[$index]);
+		// 	$product[$detail_key] = $data;		
+		// }
+		// update_field(
+		// 	$product_field_key,
+		// 	array(
+		// 		$section6_key => $section6
+		// 	),
+		// 	$post_id
+		// );
+	}
+}
+add_action('acf/save_post', 'acf_get_product_detail', 20);
 
 
 
-
-// function readonly_selector_section($field) {
-// 	if ( is_admin() && get_post_type() === 'products') {
-// 		$post = get_post();
-// 		if ($post) {
-// 			$initialized = get_post_meta($post->ID, '_initialized', true);
-// 			if ( $initialized ) {
-// 				$field['readonly'] = 1;
-// 				return $field;
-// 			}
-// 		}
-// 	}
-// }
-// add_filter('acf/prepare_field/name=section_number', 'readonly_selector_section');
-
+/* --------------------------------------- wordpress hook -------------------------------------- */
 function display_message_on_non_admin_pages() {
 	$request_uri = $_SERVER['REQUEST_URI'];
     if (!is_admin() 
@@ -353,6 +431,8 @@ function display_message_on_non_admin_pages() {
 }
 add_action('template_redirect', 'display_message_on_non_admin_pages');
 
+
+
 function increase_per_page_max($params){
     $params['per_page']['maximum'] = 200;
     return $params;
@@ -360,53 +440,11 @@ function increase_per_page_max($params){
 
 add_filter('rest_products_collection_params', 'increase_per_page_max');
 
-// function my_acf_format_value( $value, $post_id, $field ) {
-// 	$url = "";
-// 	switch ( wp_get_environment_type() ) {
-// 		case 'local':
-// 			$url = IMAGE_URL_DEV;
-// 			break;
-// 		case 'development':  
-// 			$url = IMAGE_URL_DEV;
-// 			break;
-// 		case 'staging':
-// 			$url = IMAGE_URL_PROD;
-// 			break;
-// 		case 'production':
-// 			$url = IMAGE_URL_PROD;
-// 			break;
-// 		default:
-// 			$url = IMAGE_URL_PROD;
-// 			break;
-// 	}
-//     if(!is_array($value)){
-//         $value = str_replace($url, IMAGE_CDN, $value);
-// 		return $value;
-//     }
-// 	return $value;
-// }
-// add_filter('acf/format_value/type=image', 'my_acf_format_value',20,3);
-// add_filter('acf/format_value/type=file', 'my_acf_format_value',20,3);
 
+
+// chnage attachment url to cdn
 function url_to_cdn( $url ) {
 	$domain = IMAGE_URL;
-	// switch ( wp_get_environment_type() ) {
-	// 	case 'local':
-	// 		$domain = IMAGE_URL_DEV;
-	// 		break;
-	// 	case 'development':  
-	// 		$domain = IMAGE_URL_DEV;
-	// 		break;
-	// 	case 'staging':
-	// 		$domain = IMAGE_URL_PROD;
-	// 		break;
-	// 	case 'production':
-	// 		$domain = IMAGE_URL_PROD;
-	// 		break;
-	// 	default:
-	// 		$domain = IMAGE_URL_PROD;
-	// 		break;
-	// }
     if($url){
         $value = str_replace($domain, IMAGE_CDN, $url);
 		return $value;
@@ -415,116 +453,17 @@ function url_to_cdn( $url ) {
 }
 add_filter('wp_get_attachment_url', 'url_to_cdn');
 
-// function cdn_attachments_urls($url, $post_id) {
-// 	$domain = 'http://skbt-main.local';
-// 	return str_replace($domain.'/onlineshowroom-backend/wp-content/uploads', IMAGE_URL.'/onlineshowroom-backend/wp-content/uploads', $url);
-//   }
-//   add_filter('wp_get_attachment_url', 'cdn_attachments_urls', 10, 2);
-
-// function get_relative_path($url) {
-//     $parsed_url = parse_url($url);
-//     return isset($parsed_url['path']) ? $parsed_url['path'] : $url;
-// }
 
 
-// function format_acf_url($attachment_id) {
-//     if (class_exists('W3TC\\CdnEngine_Base')) {
-//         $cdn_engine = new W3TC\CdnEngine_Base();
-        
-//         $url = wp_get_attachment_url($attachment_id);
-//         $relative_path = get_relative_path($url);
-
-//         $formatted_url = $cdn_engine->format_cdn_url($relative_path);
-
-//         if ($formatted_url === false) {
-//             // Handle or log the failure
-//             error_log('Failed to format URL: ' . $relative_path);
-//             return $url; // Fallback to original URL
-//         }
-
-//         return $formatted_url;
-//     }
-//     return $attachment_id;
-// }
-
-// function modify_acf_field_urls($value, $post_id, $field) {
-//     if ($field['type'] == 'image' || $field['type'] == 'file') {
-// 		// $value['image_desktop'] = 'test';
-//         if (isset($value) && $value !== "") {
-//             $value = 'test';
-//         } 
-// 		// var_dump($value);
-//     }
-//     return $value;
-// }
-
-// add_filter('acf/format_value/type=image', 'modify_acf_field_urls', 10, 3);
-// add_filter('acf/format_value/type=file', 'modify_acf_field_urls', 10, 3);
-
-
-// add options for selector video in home-managements
-// function fetch_video_fields() {
-// 	try {
-// 		$response = wp_remote_get(WP_BASE_URL_PROD.'wp-json/restapi/v2/videos');
-// 		if (is_wp_error($response)) {
-// 			return [];
-// 		} 
-	
-// 		$body = wp_remote_retrieve_body($response);
-// 		$data = json_decode($body, true);
-
-// 		if (!is_array($data)) {
-// 			return [];
-// 		} 
-	
-// 		$options = [];
-// 		foreach ($data as $video) {
-// 			if (isset($video)) {
-// 				$file_name = basename($video['video']);
-// 				$options[$file_name] = $file_name;
-// 			} 
-// 		}
-	
-// 		return $options;
-// 	} catch (Exception $ex) {
-// 		return $ex;
-// 	}
-
-// }
-
-// add options in video selector field
-// function populate_acf_selector_field($field) {
-// 	if (is_admin() && get_post_type() === 'page') {
-// 		$selector = fetch_video_fields();
-// 		if (isset($selector)) {
-// 			$field['choices'] = $selector;
-// 		} 
-// 	}
-// 	return $field;
-// }
-// add_filter('acf/load_field/name=video_id', 'populate_acf_selector_field');
-
-		// if ( $field['value'] && strpos($field['value'][0]['section_number'], 'Section')) {
-		// 	$field['disabled'] = true;
-		// 	return $field;
-		// } else {
-		// 	$field['disabled'] = false;
-		// 	return $field;
-		// }
-
-
-
-	// update_row(
-	// 	'sort_selector_section', 
-	// 	$number,
-	// 	array(
-	// 		'section_number' => $section[$number]
-	// 	),
-	// 	$post_id
-	//  );
-
-
-
+// adjust preview url of preview button in adamin page
+function the_preview_fix() {
+	$type = get_post_type();
+    $slug = basename(get_permalink());
+	if ($type === 'products') {
+		return "https://skbt-main.digi-team.work/onlineshowroom/product/".$slug; 
+	}
+}
+add_filter( 'preview_post_link', 'the_preview_fix' );
 
 
 
