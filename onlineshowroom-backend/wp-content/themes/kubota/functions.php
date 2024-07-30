@@ -421,7 +421,7 @@ function display_message_on_non_admin_pages() {
 	$request_uri = $_SERVER['REQUEST_URI'];
     if (!is_admin() 
 		&& strpos($request_uri, '/onlineshowroom-backend/rest-api/docs/') === false 
-		&& strpos($request_uri, '/onlineshowroom-backend/phpmyadmin/') === false
+		&& strpos($request_uri, '/onlineshowroom-backend/phpmyadmin') === false
 		) {
         status_header(200); // Set the HTTP status code to 200
         header('Content-Type: text/plain'); // Set the content type to plain text
