@@ -7,43 +7,51 @@
 */
 
 
-function get_seo_data($path) {
-  $url = "";
-  switch ( wp_get_environment_type() ) {
-    case 'local':
-      break;
-    case 'development':  
-      $url = WP_BASE_URL.'wp-json/yoast/v1/get_head?url=http://skbt-main.local/onlineshowroom-backend/'.$path;
-      break;
-    case 'staging':
-        break;
-    case 'production':
-      $url = WP_BASE_URL.'wp-json/yoast/v1/get_head?url='.WP_BASE_URL.$path;
-      break;
-    default:
-      break;
-  }
+function get_seo_data($type, $id) {
+  // $url = "";
+  // switch ( wp_get_environment_type() ) {
+  //   case 'local':
+  //     break;
+  //   case 'development':  
+  //     $url = WP_BASE_URL.'wp-json/yoast/v1/get_head?url=http://skbt-main.local/onlineshowroom-backend/'.$path;
+  //     break;
+  //   case 'staging':
+  //       break;
+  //   case 'production':
+  //     $url = WP_BASE_URL.'wp-json/yoast/v1/get_head?url='.WP_BASE_URL.$path;
+  //     break;
+  //   default:
+  //     break;
+  // }
 
   try {
     $args = array(
       'timeout' => 10,
+      'headers' => array(
+        'Authorization' => 'Basic ' . base64_encode(USERNAME.':'.PASSWORD)
+      )
     );
-    // $url = $base_url.'wp-json/yoast/v1/get_head?url=http://skbt-main.local/onlineshowroom-backend/'.$path;
 
+    // $url = $base_url.'wp-json/yoast/v1/get_head?url=http://skbt-main.local/onlineshowroom-backend/'.$path;
+    $url = "";
+    if ($type === 'products') {
+      $url = WP_BASE_URL.'wp-json/wp/v2/products/'.$id;
+    } else  {
+      $url = WP_BASE_URL.'wp-json/wp/v2/pages/?slug='.$id;
+    }
     $response = wp_remote_get($url, $args);
-      
     if (is_wp_error($response)) {
-      return $response;
+      return [];
     }
 
     $body = wp_remote_retrieve_body($response);
     if (empty($body)) {
       return [];
-  }
+    }
 
     $data = json_decode($body, true);
     if (isset($data)) {
-      return $data['json'];
+      return $data;
     }
     return [];
 
@@ -52,7 +60,9 @@ function get_seo_data($path) {
   }
 }
 
+// function get_seo_data() {
 
+// }
 
 // adjust string to object
 function parse_key_value_string($inputString) {
@@ -224,9 +234,7 @@ function get_product_detail(WP_REST_Request $request) {
       global $post;
       $post_slug = $post->post_name;
 
-      $path = 'products/'.$post_slug.'/';
-      $data = get_seo_data($path);
-
+      $data = get_seo_data('products', get_the_ID());
       $custom_fields = get_fields(get_the_ID())['product_field'];
       $sort_section = $custom_fields['sort_selector_section'];
 
@@ -239,7 +247,7 @@ function get_product_detail(WP_REST_Request $request) {
         'slug' => $post_slug,
         'header' => $header,
         'section' => $section,
-        'seo_data' => $data,
+        'seo_data' => $data['yoast_head_json'],
       );
     }
     wp_reset_postdata();
@@ -322,8 +330,9 @@ function get_showroom_infinity() {
   try {
     $products = get_products_list();
 
-    $path = 'showroom-infinity/';
-    $data = get_seo_data($path);
+    // $path = 'showroom-infinity/';
+    // $data = get_seo_data($path);
+    $data = get_seo_data('showroom-infinity', 'showroom-infinity');
 
     
     $showroom = array();
@@ -342,12 +351,12 @@ function get_showroom_infinity() {
         $image_showroom[$key] = $value;
       }
     }
-    
+
     $showroom = array(
       'image_showroom' => $image_showroom,
       'sound_showroom' => $custom_fields['sound_showroom'] ? $custom_fields['sound_showroom'] : false,
       'products' => $products,
-      'seo_data' => $data,
+      'seo_data' => $data[0]['yoast_head_json'],
     );
 
     return new WP_REST_Response($showroom, 200);
@@ -368,8 +377,9 @@ function get_home_item() {
     'posts_per_page' => 1,
   );
   try {
-    $path = 'home-managements/';
-    $data = get_seo_data($path);
+    // $path = 'home-managements/';
+    // $data = get_seo_data($path);
+    $data = get_seo_data('home-managements', 'home-managements');
 
     $items = array();
     $query = new WP_Query( $args );
@@ -392,7 +402,7 @@ function get_home_item() {
       'id' => $post_id,
       // 'video_url' => $custom_fields,
       'video_url' => $select_video === "" ? false : $select_video,
-      'seo_data' => $data,
+      'seo_data' =>  $data[0]['yoast_head_json'],
     );
     return new WP_REST_Response( $items, 200 );
   } catch (Exception $e) {

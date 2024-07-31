@@ -45,6 +45,9 @@ define('IMAGE_URL', getenv('IMAGE_URL'));
 
 define('API_KUBOTA', getenv('API_KUBOTA'));
 
+define('USERNAME', getenv('WORDPRESS_ADMIN_USER'));
+define('PASSWORD', getenv('WORDPRESS_ADMIN_PASSWORD'));
+
 //Using environment variables for DB connection information
 
 // ** Database settings - You can get this info from your web host ** //
@@ -120,7 +123,7 @@ $table_prefix = 'wp_';
  */
 define('WP_DEBUG', true);
 define('WP_DEBUG_LOG', true);
-define('WP_DEBUG_DISPLAY', true);
+define('WP_DEBUG_DISPLAY', false);
 
 /* That's all, stop editing! Happy blogging. */
 /**https://developer.wordpress.org/reference/functions/is_ssl/ */
