@@ -456,15 +456,15 @@ add_filter('wp_get_attachment_url', 'url_to_cdn');
 
 
 // adjust preview url of preview button in adamin page
-// function the_preview_fix() {
-// 	$type = get_post_type();
-// 	$current_page_id = get_the_ID();
-// 	$current_page = get_post($current_page_id);
-// 	$slug = $current_page->post_name;
-//     // $slug = basename(get_permalink());
-// 	if ($type === 'products') {
-// 		return "https://skbt-main.digi-team.work/onlineshowroom/product/".$slug; 
-// 	}
-// }
-// add_filter( 'preview_post_link', 'the_preview_fix');
+function the_preview_fix() {
+	$type = get_post_type();
+	$current_page_id = get_the_ID();
+	$current_page = get_post($current_page_id);
+	$slug = $current_page->post_name;
+    // $slug = basename(get_permalink());
+	if ($type === 'products') {
+		return "https://skbt-main.digi-team.work/onlineshowroom/product/".$slug; 
+	}
+}
+add_filter( 'preview_post_link', 'the_preview_fix');
 // add_filter( 'post_type_link', 'the_preview_fix', 10, 2 );
