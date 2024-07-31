@@ -458,13 +458,24 @@ add_filter('wp_get_attachment_url', 'url_to_cdn');
 // adjust preview url of preview button in adamin page
 function the_preview_fix() {
 	$type = get_post_type();
-	$current_page_id = get_the_ID();
-	$current_page = get_post($current_page_id);
-	$slug = $current_page->post_name;
-    // $slug = basename(get_permalink());
+	$id = get_the_ID();
+	$current_page = get_post($id);
+	$status = get_post_status($id);
+
+	$slug = "";
+	if ($status === 'publish') {
+		$slug = $current_page->post_name;
+	} else {
+		$sample_permalink = get_sample_permalink($id);
+		if (is_array($sample_permalink)) {
+			$slug = $sample_permalink[1];
+		}
+	}
+	
 	if ($type === 'products') {
-		return "https://skbt-main.digi-team.work/onlineshowroom/product/".$slug; 
+		// IMAGE_URL = domain_url
+		return IMAGE_URL."/onlineshowroom/product/".$slug; 
 	}
 }
 add_filter( 'preview_post_link', 'the_preview_fix');
-// add_filter( 'post_type_link', 'the_preview_fix', 10, 2 );
+
