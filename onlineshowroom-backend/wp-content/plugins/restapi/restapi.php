@@ -8,22 +8,6 @@
 
 
 function get_seo_data($type, $id) {
-  // $url = "";
-  // switch ( wp_get_environment_type() ) {
-  //   case 'local':
-  //     break;
-  //   case 'development':  
-  //     $url = WP_BASE_URL.'wp-json/yoast/v1/get_head?url=http://skbt-main.local/onlineshowroom-backend/'.$path;
-  //     break;
-  //   case 'staging':
-  //       break;
-  //   case 'production':
-  //     $url = WP_BASE_URL.'wp-json/yoast/v1/get_head?url='.WP_BASE_URL.$path;
-  //     break;
-  //   default:
-  //     break;
-  // }
-
   try {
     $args = array(
       'timeout' => 10,
@@ -60,9 +44,7 @@ function get_seo_data($type, $id) {
   }
 }
 
-// function get_seo_data() {
 
-// }
 
 // adjust string to object
 function parse_key_value_string($inputString) {
@@ -251,8 +233,10 @@ function get_product_detail(WP_REST_Request $request) {
       );
     }
     wp_reset_postdata();
-  
-    return new WP_REST_Response( $items, 200 );
+    
+    $result = new WP_REST_Response($items, 200);
+    $result->set_headers(array('Cache-Control' => 'max-age=3600'));
+    return $result;
   } catch (Exception $e) {
     return new WP_Error(500, $e->getMessage());
   }
@@ -356,10 +340,12 @@ function get_showroom_infinity() {
       'image_showroom' => $image_showroom,
       'sound_showroom' => $custom_fields['sound_showroom'] ? $custom_fields['sound_showroom'] : false,
       'products' => $products,
-      'seo_data' => $data[0]['yoast_head_json'],
+      'seo_data' => $data[0]['yoast_head_json'] ? $data[0]['yoast_head_json'] : $data,
     );
 
-    return new WP_REST_Response($showroom, 200);
+    $result = new WP_REST_Response($showroom, 200);
+    $result->set_headers(array('Cache-Control' => 'max-age=3600'));
+    return $result;
     
   } catch (Exception $e) {
     return new WP_Error(500, $e->getMessage());
@@ -396,15 +382,15 @@ function get_home_item() {
     if ( is_array($custom_fields['home_video']) && $custom_fields['home_video'][0] ) {
       $select_video = $custom_fields['home_video'][0]['video'];
     }
-    // $select_video = get_select_video($custom_fields);
 
     $items = array(
       'id' => $post_id,
-      // 'video_url' => $custom_fields,
       'video_url' => $select_video === "" ? false : $select_video,
-      'seo_data' =>  $data[0]['yoast_head_json'],
+      'seo_data' =>  $data[0]['yoast_head_json'] ? $data[0]['yoast_head_json'] : $data,
     );
-    return new WP_REST_Response( $items, 200 );
+    $result = new WP_REST_Response($items, 200);
+    $result->set_headers(array('Cache-Control' => 'max-age=3600'));
+    return $result;
   } catch (Exception $e) {
     return new WP_Error(500, $e->getMessage());
   }
