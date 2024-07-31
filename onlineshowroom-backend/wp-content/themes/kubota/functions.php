@@ -479,3 +479,27 @@ function the_preview_fix() {
 }
 add_filter( 'preview_post_link', 'the_preview_fix');
 
+
+// publish post ( status first time draft ) to save slug in database
+function update_post_status( $post_id, $post, $update ) {
+	$post_status = get_post_status($post_id);
+	$slug = $post->post_name;
+	$post_type = $post->post_type;
+    if ( $post_status === 'draft' && $slug === '' &&  $post_type === 'products') {
+        
+        //un-hook to prevent infinite loop
+        remove_action( 'save_post', 'update_post_status', 13, 3 );
+
+        //set the post to publish so it gets the slug is saved to post_name
+        wp_update_post( array( 'ID' => $post_id, 'post_status' => 'publish' ) );
+
+        //immediately put it back to draft status
+        wp_update_post( array( 'ID' => $post_id, 'post_status' => 'draft' ) );
+
+        //re-hool
+        add_action( 'save_post', 'update_post_status', 13, 3 );
+    }
+
+}
+add_action('save_post', 'update_post_status', 13, 3);
+

@@ -10,7 +10,7 @@
 function get_seo_data($type, $id) {
   try {
     $args = array(
-      'timeout' => 10,
+      'timeout' => 15,
       'headers' => array(
         'Authorization' => 'Basic ' . base64_encode(USERNAME.':'.PASSWORD)
       )
@@ -229,7 +229,7 @@ function get_product_detail(WP_REST_Request $request) {
         'slug' => $post_slug,
         'header' => $header,
         'section' => $section,
-        'seo_data' => $data['yoast_head_json'],
+        'seo_data' => $data['yoast_head_json'] ? $data['yoast_head_json'] : $data,
       );
     }
     wp_reset_postdata();
