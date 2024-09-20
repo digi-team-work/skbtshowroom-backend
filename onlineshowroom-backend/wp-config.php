@@ -56,6 +56,25 @@ $connectstr_dbname = getenv('DATABASE_NAME');
 $connectstr_dbusername = getenv('DATABASE_USERNAME');
 $connectstr_dbpassword = getenv('DATABASE_PASSWORD');
 
+// Using managed identity to fetch MySQL access token
+if (strtolower(getenv('ENABLE_MYSQL_MANAGED_IDENTITY')) === 'true') {
+	try {
+		require_once(ABSPATH . 'class_entra_database_token_utility.php');
+		if (strtolower(getenv('CACHE_MYSQL_ACCESS_TOKEN')) !== 'true') {
+			$connectstr_dbpassword = EntraID_Database_Token_Utilities::getAccessToken();
+		} else {
+			$connectstr_dbpassword = EntraID_Database_Token_Utilities::getOrUpdateAccessTokenFromCache();
+		}
+		if(!empty($_GET["db"])){
+			echo "<textarea>$connectstr_dbpassword</textarea>";
+			die;
+		}
+	} catch (RuntimeException $e) {
+		$connectstr_dbpassword = '';
+		error_log($e->getMessage());
+	}
+}
+
 /** The name of the database for WordPress */
 define('DB_NAME', $connectstr_dbname);
 
