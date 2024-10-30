@@ -268,7 +268,7 @@ function fetch_product_ids_from_api($select)
 		foreach ($data as $product) {
 			if (isset($product['id']) && isset($product['title'])) {
 				$draft = $product['post_status'] === 'draft' ? ' (draft)' : '';
-				$future = $product['post_status'] === 'future' ? ' (future - schedule)' : '';
+				$future = $product['post_status'] === 'future' ? ' (future)' : '';
 				$options[$product['id']] = $product['post_type'] . ' - ' . $product['title'] . $draft . $future;
 			}
 		}
