@@ -75,10 +75,13 @@ function get_detail_object($related)
 		$get_detail = parse_key_value_string($product['product_detail']);
 		$detail = $get_detail;
 
-		$products_detail[] = array_merge(
-			array('target' => $target),
-			$detail
-		);
+		// push only post_status is publish
+		if ($detail['post_status'] == 'publish') {
+			$products_detail[] = array_merge(
+				array('target' => $target),
+				$detail
+			);
+		}
 	}
 	return $products_detail;
 }
@@ -170,18 +173,12 @@ function custom_section_items($custom_fields, $sort_section)
 		$section6 = $custom_fields['section-6'];
 		$related = $section6['related_product'];
 		$products_detail = get_detail_object($related);
-		$new_products_detail = [];
-		foreach ($products_detail as $product_) {
-			if ($product_['post_status'] === 'publish') {
-				$new_products_detail[] = $product_;
-			}
-		}
 
-		if (count($new_products_detail) > 0) {
+		if (count($products_detail) > 0) {
 			$pre_section['Related Product Section'] = array(
 				'widget' => 'section-6',
 				'title' => $section6['title'],
-				'lists' => $new_products_detail,
+				'lists' => $products_detail,
 			);
 		}
 	}
