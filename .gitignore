@@ -15,3 +15,5 @@ onlineshowroom-backend/sitemap.xml
 onlineshowroom-backend/sitemap.xml.gz
 
 # onlineshowroom-backend/wp-config.php
+
+onlineshowroom-backend/wp-content/w3tc-config/
