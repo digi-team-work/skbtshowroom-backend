@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Twenty Twenty-Four functions and definitions
  *
@@ -16,20 +17,21 @@ use ACP\Search\Helper\MetaQuery\Comparison\IsEmpty;
 
 
 
-if ( ! function_exists( 'twentytwentyfour_block_styles' ) ) :
+if (! function_exists('twentytwentyfour_block_styles')) :
 	/**
 	 * Register custom block styles
 	 *
 	 * @since Twenty Twenty-Four 1.0
 	 * @return void
 	 */
-	function twentytwentyfour_block_styles() {
+	function twentytwentyfour_block_styles()
+	{
 
 		register_block_style(
 			'core/details',
 			array(
 				'name'         => 'arrow-icon-details',
-				'label'        => __( 'Arrow icon', 'twentytwentyfour' ),
+				'label'        => __('Arrow icon', 'twentytwentyfour'),
 				/*
 				 * Styles for the custom Arrow icon style of the Details block
 				 */
@@ -52,7 +54,7 @@ if ( ! function_exists( 'twentytwentyfour_block_styles' ) ) :
 			'core/post-terms',
 			array(
 				'name'         => 'pill',
-				'label'        => __( 'Pill', 'twentytwentyfour' ),
+				'label'        => __('Pill', 'twentytwentyfour'),
 				/*
 				 * Styles variation for post terms
 				 * https://github.com/WordPress/gutenberg/issues/24956
@@ -75,7 +77,7 @@ if ( ! function_exists( 'twentytwentyfour_block_styles' ) ) :
 			'core/list',
 			array(
 				'name'         => 'checkmark-list',
-				'label'        => __( 'Checkmark', 'twentytwentyfour' ),
+				'label'        => __('Checkmark', 'twentytwentyfour'),
 				/*
 				 * Styles for the custom checkmark list block style
 				 * https://github.com/WordPress/gutenberg/issues/51480
@@ -94,7 +96,7 @@ if ( ! function_exists( 'twentytwentyfour_block_styles' ) ) :
 			'core/navigation-link',
 			array(
 				'name'         => 'arrow-link',
-				'label'        => __( 'With arrow', 'twentytwentyfour' ),
+				'label'        => __('With arrow', 'twentytwentyfour'),
 				/*
 				 * Styles for the custom arrow nav link block style
 				 */
@@ -112,7 +114,7 @@ if ( ! function_exists( 'twentytwentyfour_block_styles' ) ) :
 			'core/heading',
 			array(
 				'name'         => 'asterisk',
-				'label'        => __( 'With asterisk', 'twentytwentyfour' ),
+				'label'        => __('With asterisk', 'twentytwentyfour'),
 				'inline_style' => "
 				.is-style-asterisk:before {
 					content: '';
@@ -148,20 +150,21 @@ if ( ! function_exists( 'twentytwentyfour_block_styles' ) ) :
 	}
 endif;
 
-add_action( 'init', 'twentytwentyfour_block_styles' );
+add_action('init', 'twentytwentyfour_block_styles');
 
 /**
  * Enqueue block stylesheets.
  */
 
-if ( ! function_exists( 'twentytwentyfour_block_stylesheets' ) ) :
+if (! function_exists('twentytwentyfour_block_stylesheets')) :
 	/**
 	 * Enqueue custom block stylesheets
 	 *
 	 * @since Twenty Twenty-Four 1.0
 	 * @return void
 	 */
-	function twentytwentyfour_block_stylesheets() {
+	function twentytwentyfour_block_stylesheets()
+	{
 		/**
 		 * The wp_enqueue_block_style() function allows us to enqueue a stylesheet
 		 * for a specific block. These will only get loaded when the block is rendered
@@ -174,39 +177,40 @@ if ( ! function_exists( 'twentytwentyfour_block_stylesheets' ) ) :
 			'core/button',
 			array(
 				'handle' => 'twentytwentyfour-button-style-outline',
-				'src'    => get_parent_theme_file_uri( 'assets/css/button-outline.css' ),
-				'ver'    => wp_get_theme( get_template() )->get( 'Version' ),
-				'path'   => get_parent_theme_file_path( 'assets/css/button-outline.css' ),
+				'src'    => get_parent_theme_file_uri('assets/css/button-outline.css'),
+				'ver'    => wp_get_theme(get_template())->get('Version'),
+				'path'   => get_parent_theme_file_path('assets/css/button-outline.css'),
 			)
 		);
 	}
 endif;
 
-add_action( 'init', 'twentytwentyfour_block_stylesheets' );
+add_action('init', 'twentytwentyfour_block_stylesheets');
 
 /**
  * Register pattern categories.
  */
 
-if ( ! function_exists( 'twentytwentyfour_pattern_categories' ) ) :
+if (! function_exists('twentytwentyfour_pattern_categories')) :
 	/**
 	 * Register pattern categories
 	 *
 	 * @since Twenty Twenty-Four 1.0
 	 * @return void
 	 */
-	function twentytwentyfour_pattern_categories() {
+	function twentytwentyfour_pattern_categories()
+	{
 
 		register_block_pattern_category(
 			'twentytwentyfour_page',
 			array(
-				'label'       => _x( 'Pages', 'Block pattern category', 'twentytwentyfour' ),
-				'description' => __( 'A collection of full page layouts.', 'twentytwentyfour' ),
+				'label'       => _x('Pages', 'Block pattern category', 'twentytwentyfour'),
+				'description' => __('A collection of full page layouts.', 'twentytwentyfour'),
 			)
 		);
 	}
 endif;
-add_action( 'init', 'twentytwentyfour_pattern_categories' );
+add_action('init', 'twentytwentyfour_pattern_categories');
 
 
 
@@ -215,11 +219,12 @@ add_action( 'init', 'twentytwentyfour_pattern_categories' );
 /* ------------------------------------ custom function ---------------------------------- */
 
 // get field key from field name and post id
-function acf_get_field_key( $field_name, $post_id ) {
+function acf_get_field_key($field_name, $post_id)
+{
 	global $wpdb;
-	$acf_fields = $wpdb->get_results( $wpdb->prepare( "SELECT ID,post_parent,post_name FROM $wpdb->posts WHERE post_excerpt=%s AND post_type=%s" , $field_name , 'acf-field' ) );
+	$acf_fields = $wpdb->get_results($wpdb->prepare("SELECT ID,post_parent,post_name FROM $wpdb->posts WHERE post_excerpt=%s AND post_type=%s", $field_name, 'acf-field'));
 	// get all fields with that name.
-	switch ( count( $acf_fields ) ) {
+	switch (count($acf_fields)) {
 		case 0: // no such field
 			return false;
 		case 1: // just one result. 
@@ -228,58 +233,61 @@ function acf_get_field_key( $field_name, $post_id ) {
 	// result is ambiguous
 	// get IDs of all field groups for this post
 	$field_groups_ids = array();
-	$field_groups = acf_get_field_groups( array(
+	$field_groups = acf_get_field_groups(array(
 		'post_id' => $post_id,
-	) );
-	foreach ( $field_groups as $field_group )
+	));
+	foreach ($field_groups as $field_group)
 		$field_groups_ids[] = $field_group['ID'];
-	
+
 	// Check if field is part of one of the field groups
 	// Return the first one.
-	foreach ( $acf_fields as $acf_field ) {
-		if ( in_array($acf_field->post_parent,$field_groups_ids) )
+	foreach ($acf_fields as $acf_field) {
+		if (in_array($acf_field->post_parent, $field_groups_ids))
 			return $acf_field->post_name;
 	}
 	return false;
 }
 
 // add related products in product detail section6
-function fetch_product_ids_from_api($select) {
-    $response = wp_remote_get(API_KUBOTA);
-    if (is_wp_error($response)) {
-        return [];
-    }
+function fetch_product_ids_from_api($select)
+{
+	$response = wp_remote_get(API_KUBOTA);
+	if (is_wp_error($response)) {
+		return [];
+	}
 
-    $body = wp_remote_retrieve_body($response);
-    $data = json_decode($body, true);
+	$body = wp_remote_retrieve_body($response);
+	$data = json_decode($body, true);
 
-    if (!is_array($data)) {
-        return [];
-    }
+	if (!is_array($data)) {
+		return [];
+	}
 
 	if ($select === 'options') {
 		$options = [];
 		foreach ($data as $product) {
 			if (isset($product['id']) && isset($product['title'])) {
 				$draft = $product['post_status'] === 'draft' ? ' (draft)' : '';
-				$options[$product['id']] = $product['post_type']. ' - ' . $product['title'].$draft;
+				$future = $product['post_status'] === 'future' ? ' (future - schedule)' : '';
+				$options[$product['id']] = $product['post_type'] . ' - ' . $product['title'] . $draft . $future;
 			}
 		}
 		return $options;
-	} else  {
+	} else {
 		return $data;
 	}
 }
 
-function populate_acf_product_id_field($field) {
-	if ( is_admin() ) {
+function populate_acf_product_id_field($field)
+{
+	if (is_admin()) {
 		$products = fetch_product_ids_from_api('options');
 
 		if (!empty($products)) {
-				$field['choices'] = $products;
-		} 
+			$field['choices'] = $products;
+		}
 	}
-    return $field;
+	return $field;
 }
 add_filter('acf/load_field/name=product_id', 'populate_acf_product_id_field');
 
@@ -288,7 +296,8 @@ add_filter('acf/load_field/name=product_id', 'populate_acf_product_id_field');
 /* ------------------------------------- sort selector section --------------------------- */
 
 // update section number of sort selector section
-function update_section_number($post_id) {
+function update_section_number($post_id)
+{
 	$section = array(
 		1 => 'Image Grid Section',
 		2 => 'Image Slide Section',
@@ -303,16 +312,18 @@ function update_section_number($post_id) {
 			'section_number' => $section[$i]
 		);
 	}
-	update_field('product_field', 
+	update_field(
+		'product_field',
 		array(
 			'sort_selector_section' => $sort_selector_section
-		), 
+		),
 		$post_id
 	);
 }
 
 // hook when create new post and update post in post type products
-function add_acf_repeater_product($post_id, $post, $update) {
+function add_acf_repeater_product($post_id, $post, $update)
+{
 	if (is_admin() && $post->post_type === 'products') {
 		if ($update) {
 			return;
@@ -324,12 +335,13 @@ function add_acf_repeater_product($post_id, $post, $update) {
 add_action('wp_insert_post', 'add_acf_repeater_product', 10, 3);
 
 // set readonly in sort selector sevtion 
-function readonly_selector_section($field) {
-	if ( is_admin() && get_post_type() === 'products') {
+function readonly_selector_section($field)
+{
+	if (is_admin() && get_post_type() === 'products') {
 		$post = get_post();
 		if ($post) {
 			$initialized = get_post_meta($post->ID, '_initialized', true);
-			if ( $initialized ) {
+			if ($initialized) {
 				$field['readonly'] = 1;
 				return $field;
 			}
@@ -344,20 +356,22 @@ add_filter('acf/prepare_field/name=section_number', 'readonly_selector_section')
 
 // adjust data from object to string for saving in textarea field
 // related product in section6
-function create_detail_string($data) {
+function create_detail_string($data)
+{
 	$detail = "";
 	if (isset($data)) {
 		foreach ($data as $key => $value) {
 			$before = $detail;
-			$new = $key." - ".$value." | ";
-			$detail = $before.$new;
+			$new = $key . " - " . $value . " | ";
+			$detail = $before . $new;
 		}
 	}
 	return $detail;
 }
 
 // update product_detail ( textarea field )
-function acf_get_product_detail($post_id) {
+function acf_get_product_detail($post_id)
+{
 	$post_type = get_post_type($post_id);
 	if (is_admin() && $post_type === 'products') {
 		$products = fetch_product_ids_from_api('all');
@@ -372,13 +386,13 @@ function acf_get_product_detail($post_id) {
 		foreach ($related_fields as $key) {
 			$related_key[$key] = acf_get_field_key($key, $post_id);
 		}
-		
+
 		// $product_field_key = acf_get_field_key('product_field', $post_id);
 		// $section6_key = acf_get_field_key('section-6', $post_id);
 		// $related_key = acf_get_field_key('related_product', $post_id);
 		// $id_key = acf_get_field_key('product_id', $post_id);
 		// $detail_key = acf_get_field_key('product_detail', $post_id);
-		
+
 		$section6 = $values[$related_key['product_field']][$related_key['section-6']];
 		// $section6 = $values[$related_key][$section6_key];
 
@@ -388,7 +402,7 @@ function acf_get_product_detail($post_id) {
 			$id = intval($get_id);
 			$index = array_search($id, $products_id);
 			$data = create_detail_string($products[$index]);
-			$product[$related_key['product_detail']] = $data;		
+			$product[$related_key['product_detail']] = $data;
 		}
 		update_field(
 			$related_key['product_field'],
@@ -418,25 +432,28 @@ add_action('acf/save_post', 'acf_get_product_detail', 20);
 
 
 /* --------------------------------------- wordpress hook -------------------------------------- */
-function display_message_on_non_admin_pages() {
+function display_message_on_non_admin_pages()
+{
 	$request_uri = $_SERVER['REQUEST_URI'];
-    if (!is_admin() 
-		&& strpos($request_uri, '/onlineshowroom-backend/rest-api/docs/') === false 
+	if (
+		!is_admin()
+		&& strpos($request_uri, '/onlineshowroom-backend/rest-api/docs/') === false
 		&& strpos($request_uri, '/onlineshowroom-backend/phpmyadmin') === false
-		) {
-        status_header(200); // Set the HTTP status code to 200
-        header('Content-Type: text/plain'); // Set the content type to plain text
-        echo 'api running';
-        exit;
-    }
+	) {
+		status_header(200); // Set the HTTP status code to 200
+		header('Content-Type: text/plain'); // Set the content type to plain text
+		echo 'api running';
+		exit;
+	}
 }
 add_action('template_redirect', 'display_message_on_non_admin_pages');
 
 
 
-function increase_per_page_max($params){
-    $params['per_page']['maximum'] = 200;
-    return $params;
+function increase_per_page_max($params)
+{
+	$params['per_page']['maximum'] = 200;
+	return $params;
 }
 
 add_filter('rest_products_collection_params', 'increase_per_page_max');
@@ -444,12 +461,13 @@ add_filter('rest_products_collection_params', 'increase_per_page_max');
 
 
 // chnage attachment url to cdn
-function url_to_cdn( $url ) {
+function url_to_cdn($url)
+{
 	$domain = IMAGE_URL;
-    if($url){
-        $value = str_replace($domain, IMAGE_CDN, $url);
+	if ($url) {
+		$value = str_replace($domain, IMAGE_CDN, $url);
 		return $value;
-    }
+	}
 	return $url;
 }
 add_filter('wp_get_attachment_url', 'url_to_cdn');
@@ -457,7 +475,8 @@ add_filter('wp_get_attachment_url', 'url_to_cdn');
 
 
 // adjust preview url of preview button in adamin page
-function the_preview_fix() {
+function the_preview_fix()
+{
 	$type = get_post_type();
 	$id = get_the_ID();
 	$current_page = get_post($id);
@@ -472,35 +491,34 @@ function the_preview_fix() {
 			$slug = $sample_permalink[1];
 		}
 	}
-	
+
 	if ($type === 'products') {
 		// IMAGE_URL = domain_url
-		return IMAGE_URL."/onlineshowroom/product/".$slug; 
+		return IMAGE_URL . "/onlineshowroom/product/" . $slug;
 	}
 }
-add_filter( 'preview_post_link', 'the_preview_fix');
+add_filter('preview_post_link', 'the_preview_fix');
 
 
 // publish post ( status first time draft ) to save slug in database
-function update_post_status( $post_id, $post, $update ) {
+function update_post_status($post_id, $post, $update)
+{
 	$post_status = get_post_status($post_id);
 	$slug = $post->post_name;
 	$post_type = $post->post_type;
-    if ( $post_status === 'draft' && $slug === '' &&  $post_type === 'products') {
-        
-        //un-hook to prevent infinite loop
-        remove_action( 'save_post', 'update_post_status', 13, 3 );
+	if ($post_status === 'draft' && $slug === '' &&  $post_type === 'products') {
 
-        //set the post to publish so it gets the slug is saved to post_name
-        wp_update_post( array( 'ID' => $post_id, 'post_status' => 'publish' ) );
+		//un-hook to prevent infinite loop
+		remove_action('save_post', 'update_post_status', 13, 3);
 
-        //immediately put it back to draft status
-        wp_update_post( array( 'ID' => $post_id, 'post_status' => 'draft' ) );
+		//set the post to publish so it gets the slug is saved to post_name
+		wp_update_post(array('ID' => $post_id, 'post_status' => 'publish'));
 
-        //re-hool
-        add_action( 'save_post', 'update_post_status', 13, 3 );
-    }
+		//immediately put it back to draft status
+		wp_update_post(array('ID' => $post_id, 'post_status' => 'draft'));
 
+		//re-hool
+		add_action('save_post', 'update_post_status', 13, 3);
+	}
 }
 add_action('save_post', 'update_post_status', 13, 3);
-
