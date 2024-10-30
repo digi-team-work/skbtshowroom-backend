@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: (Staging) Deploy WordPress app to Azure Web App - skbtshowroom-backend
+name: Deploy WordPress app to Azure Web App - skbtshowroom-backend
 on:
   push:
     branches:
@@ -19,7 +19,7 @@ jobs:
         run: zip release.zip ./* -r
         
       - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: wordpress-app
           path: release.zip
@@ -35,7 +35,7 @@ jobs:
 
     steps:
       - name: Download artifact from build job
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: wordpress-app
 
@@ -45,14 +45,14 @@ jobs:
           rm release.zip
       
       - name: Login to Azure
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_E9EE029FD1F44EFCB38B3D09C63B1177 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_5101CFCAE667440E8DC1D7A895F92B1D }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_566729F116784863A7A9A0C6B7DC3887 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_759733B1020A4A7398AB4863249B46A1 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F0DA0CB9BC9F400388EE1D3B56650A34 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_C8C9053AE1984523BB98416577EBDACD }}
 
       - name: 'Deploy to Azure Web App'
-        uses: azure/webapps-deploy@v2
+        uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
           app-name: 'skbtshowroom-backend'
