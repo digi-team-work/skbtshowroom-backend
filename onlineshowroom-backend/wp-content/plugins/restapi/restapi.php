@@ -76,12 +76,14 @@ function get_detail_object($related)
 		$detail = $get_detail;
 
 		// push only post_status is publish
-		if ($detail['post_status'] == 'publish') {
-			$products_detail[] = array_merge(
-				array('target' => $target),
-				$detail
-			);
-		}
+		// if ($detail['post_status'] == 'publish') {
+		$merge = array_merge(
+			array('target' => $target),
+			$detail
+		);
+
+		$products_detail[] = $merge;
+		// }
 	}
 	return $products_detail;
 }
@@ -174,13 +176,13 @@ function custom_section_items($custom_fields, $sort_section)
 		$related = $section6['related_product'];
 		$products_detail = get_detail_object($related);
 
-		if (count($products_detail) > 0) {
-			$pre_section['Related Product Section'] = array(
-				'widget' => 'section-6',
-				'title' => $section6['title'],
-				'lists' => $products_detail,
-			);
-		}
+		// if (count($products_detail) > 0) {
+		$pre_section['Related Product Section'] = array(
+			'widget' => 'section-6',
+			'title' => $section6['title'],
+			'lists' => $products_detail,
+		);
+		// }
 	}
 
 	// sort sections
